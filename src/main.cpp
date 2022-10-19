@@ -1,11 +1,14 @@
+#include <iostream>
+#include <string>
 #include "classes/grainsgrowth.cpp"
 
 
 int main(void)
 {   
-    int var = 12;
+    unsigned size = 12;
 
-    simula::GrainsGrowth gsg(var, var);
+    simula::GrainsGrowth grainsGrowth(size);
+    std::string matrixStr = grainsGrowth.gridToString();
+    std::cout << matrixStr;
     
-    return 0;
 }
