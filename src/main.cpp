@@ -5,12 +5,11 @@
 
 int main(void)
 {   
-    unsigned size = 12;
-    unsigned seedsNum = 7;
+    INT_TYPE size = 15;
+    INT_TYPE seedsNum = 9;
 
-    simula::GrainsGrowth grainsGrowth(size);
+    simula::GrainsGrowth grainsGrowth(size, "moore", "periodic");
     grainsGrowth.makeSimulation(seedsNum);
-    std::string matrixStr = grainsGrowth.gridToString();
+    std::string matrixStr = grainsGrowth.gridToDisplay();
     std::cout << matrixStr;
-    
 }
