@@ -1,4 +1,5 @@
 #include <ctime>
+#include <random>
 #include <algorithm>
 #include "../headers/grainsgrowth.hpp"
 
@@ -12,13 +13,16 @@ namespace simula{
     GrainsGrowth::GrainsGrowth(
         unsigned inputSize, 
         std::string inCA_NeighborhoodType, 
-        std::string inBoundaryConditionsType
+        std::string inBoundaryConditionsType,
+        std::string inSimulationType
         )
     {
         dimSize = inputSize;
         checkInput_NeighborhoodType(inCA_NeighborhoodType);
         checkInput_BoundaryConditionsType(inBoundaryConditionsType);
+        checkInput_SimulationType(inSimulationType);
         setNeighborhoodVector();
+        setMonteCarloVector();
         grid = initGrid(grid);
         nextGrid = initGrid(nextGrid);
     }
@@ -55,6 +59,20 @@ namespace simula{
         }
     }
 
+    void GrainsGrowth::checkInput_SimulationType( std::string inSimulationType )
+    {
+        if (inSimulationType == "standard" || 
+            inSimulationType == "monte_carlo"
+            )
+        {
+            simulationType = inSimulationType;
+        }
+        else
+        {
+            CA_NeighborhoodType = "standard";
+        }
+    }
+
     void GrainsGrowth::setNeighborhoodVector()
     {
         if(CA_NeighborhoodType == "von_neumann")
@@ -65,6 +83,19 @@ namespace simula{
         {
             neighborhoodVector = {{0, -1}, {-1, -1}, {-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}};
         }
+    }
+
+    void GrainsGrowth::setMonteCarloVector()
+    {
+        for (SIZE_TYPE x = 0; x < dimSize; ++x)
+        {
+            for (SIZE_TYPE y = 0; y < dimSize; ++y)
+            {
+                monteCarloVector.push_back( { x, y } );
+            }
+        }
+        std::default_random_engine random_engine = std::default_random_engine {};
+        std::shuffle(std::begin(monteCarloVector), std::end(monteCarloVector), random_engine);
     }
 
     INT_TYPE ** GrainsGrowth::initGrid( INT_TYPE ** gridObject )
@@ -130,8 +161,14 @@ namespace simula{
     {   
         bool change_happened = false;
 
-        change_happened = iterateOverGrid();
-
+        if (simulationType == "monte_carlo")
+        {
+            change_happened = iterateOverMCVector();
+        }
+        else
+        {
+            change_happened = iterateOverGrid();
+        }
         grid = copyGrid(nextGrid);
 
         return change_happened;
@@ -140,17 +177,28 @@ namespace simula{
     bool GrainsGrowth::iterateOverGrid()
     {
         bool change_happened = false;
-        for (int x = 0; x < dimSize; ++x)
+        for (SIZE_TYPE x = 0; x < dimSize; ++x)
         {
-            for (int y = 0; y < dimSize; ++y)
+            for (SIZE_TYPE y = 0; y < dimSize; ++y)
             {
                 change_happened = checkIfCell_IdEqual_0(x, y) || change_happened;
                 // if change happened variable keeps the state of truth
-                std::cout << grid[x][y] << " ";
             }
-            std::cout << "\n";
         }
-        std::cout << "\n";
+        return change_happened;
+    }
+
+    bool GrainsGrowth::iterateOverMCVector()
+    {
+        bool change_happened = false;
+        for (auto iter = monteCarloVector.begin(); iter != monteCarloVector.end(); ++iter)
+        {
+            SIZE_TYPE x = std::get<0>( * iter);
+            SIZE_TYPE y = std::get<1>( * iter);
+
+            change_happened = checkIfCell_IdEqual_0(x, y) || change_happened;
+            // if change happened variable keeps the state of truth
+        }
         return change_happened;
     }
 
@@ -311,6 +359,7 @@ namespace simula{
         dimSize = newDimSize;
         grid = initGrid(grid);
         nextGrid = initGrid(nextGrid);
+        setMonteCarloVector();
     }
 
     INT_TYPE ** GrainsGrowth::getGrid()
