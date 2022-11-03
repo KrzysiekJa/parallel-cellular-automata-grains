@@ -27,9 +27,10 @@ namespace simula{
         INT_TYPE ** initGrid( INT_TYPE ** );
         INT_TYPE ** copyGrid( INT_TYPE ** );
         void putSeedsInGrid( unsigned );
-        bool makeIterationStep();
+        void performLoopProcess( std::vector< std::tuple< SIZE_TYPE, SIZE_TYPE >> );
+        bool makeIterationStep( std::vector< std::tuple< SIZE_TYPE, SIZE_TYPE >> & );
         bool iterateOverGrid();
-        bool iterateOverMCVector();
+        bool iterateOverMCVector( std::vector< std::tuple< SIZE_TYPE, SIZE_TYPE >> & );
         bool checkIfCell_IdEqual_0( INT_TYPE, INT_TYPE );
         void checkCell_NeighborhoodIds( INT_TYPE, INT_TYPE );
         bool inspectNeighborhoodCell( INT_TYPE, INT_TYPE, std::tuple< short, short > );
@@ -46,6 +47,9 @@ namespace simula{
         SIZE_TYPE getSize();
         void setSize( SIZE_TYPE );
         INT_TYPE ** getGrid();
+        void setNeighborhoodType( std::string );
+        void setBoundaryConditionsType( std::string );
+        void setSimulationType( std::string );
     };
 
 }
