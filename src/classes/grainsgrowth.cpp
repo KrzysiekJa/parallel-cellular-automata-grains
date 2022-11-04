@@ -22,7 +22,6 @@ namespace simula{
         checkInput_BoundaryConditionsType(inBoundaryConditionsType);
         checkInput_SimulationType(inSimulationType);
         setNeighborhoodVector();
-        setMonteCarloVector();
         grid = initGrid(grid);
         nextGrid = initGrid(nextGrid);
     }
@@ -118,9 +117,9 @@ namespace simula{
     {        
         putSeedsInGrid(numberOfSeeds);
         nextGrid = copyGrid(grid);
-        std::vector< std::tuple< SIZE_TYPE, SIZE_TYPE >> tmp_monteCarloVector = monteCarloVector;
 
-        performLoopProcess( tmp_monteCarloVector );
+        createBasicStructure();
+
         return nextGrid;
     }
 
@@ -153,30 +152,15 @@ namespace simula{
         return targetGrid;
     }
 
-    void GrainsGrowth::performLoopProcess( std::vector< std::tuple< SIZE_TYPE, SIZE_TYPE >> tmpVector )
+    void GrainsGrowth::createBasicStructure()
     {
         bool change_happened_iter = true;
 
         while (change_happened_iter)
         {
-            change_happened_iter = makeIterationStep(tmpVector);
+            change_happened_iter = iterateOverGrid();
             grid = copyGrid(nextGrid);
         }
-    }
-
-    bool GrainsGrowth::makeIterationStep( std::vector< std::tuple< SIZE_TYPE, SIZE_TYPE >> & tmpVector )
-    {   
-        bool change_happened = false;
-
-        if (simulationType == "monte_carlo")
-        {
-            change_happened = iterateOverMCVector(tmpVector);
-        }
-        else
-        {
-            change_happened = iterateOverGrid();
-        }
-        return change_happened;
     }
 
     bool GrainsGrowth::iterateOverGrid()
@@ -191,26 +175,6 @@ namespace simula{
             }
         }
         return zero_hit;
-    }
-
-    bool GrainsGrowth::iterateOverMCVector( std::vector< std::tuple< SIZE_TYPE, SIZE_TYPE >> & tmpVector )
-    {
-        bool change_happened = false, zero_hit = false;
-        for (auto iter = tmpVector.begin(); iter != tmpVector.end(); )
-        {
-            SIZE_TYPE x = std::get<0>( * iter);
-            SIZE_TYPE y = std::get<1>( * iter);
-
-            zero_hit = checkIfCell_IdEqual_0(x, y);
-            change_happened = zero_hit || change_happened;
-            // if change happened variable keeps the state of truth
-            if (zero_hit && grid[x][y] != 0) {
-                iter = tmpVector.erase(iter);
-            } else {
-                ++iter;
-            }
-        }
-        return change_happened;
     }
 
     /************************************************
@@ -370,7 +334,6 @@ namespace simula{
         dimSize = newDimSize;
         grid = initGrid(grid);
         nextGrid = initGrid(nextGrid);
-        setMonteCarloVector();
     }
 
     INT_TYPE ** GrainsGrowth::getGrid()

@@ -27,10 +27,9 @@ namespace simula{
         INT_TYPE ** initGrid( INT_TYPE ** );
         INT_TYPE ** copyGrid( INT_TYPE ** );
         void putSeedsInGrid( unsigned );
-        void performLoopProcess( std::vector< std::tuple< SIZE_TYPE, SIZE_TYPE >> );
-        bool makeIterationStep( std::vector< std::tuple< SIZE_TYPE, SIZE_TYPE >> & );
+        void createBasicStructure();
         bool iterateOverGrid();
-        bool iterateOverMCVector( std::vector< std::tuple< SIZE_TYPE, SIZE_TYPE >> & );
+        //bool iterateOverMCVector( std::vector< std::tuple< SIZE_TYPE, SIZE_TYPE >> & );
         bool checkIfCell_IdEqual_0( INT_TYPE, INT_TYPE );
         void checkCell_NeighborhoodIds( INT_TYPE, INT_TYPE );
         bool inspectNeighborhoodCell( INT_TYPE, INT_TYPE, std::tuple< short, short > );
