@@ -26,10 +26,9 @@ namespace simula{
     protected:
         INT_TYPE ** initGrid( INT_TYPE ** );
         INT_TYPE ** copyGrid( INT_TYPE ** );
-        void putSeedsInGrid( unsigned );
-        void createBasicStructure();
+        void putNucleusInGrid( unsigned );
+        void createBasicStructure( unsigned );
         bool iterateOverGrid();
-        //bool iterateOverMCVector( std::vector< std::tuple< SIZE_TYPE, SIZE_TYPE >> & );
         bool checkIfCell_IdEqual_0( INT_TYPE, INT_TYPE );
         void checkCell_NeighborhoodIds( INT_TYPE, INT_TYPE );
         bool inspectNeighborhoodCell( INT_TYPE, INT_TYPE, std::tuple< short, short > );
@@ -38,10 +37,16 @@ namespace simula{
         std::map< INT_TYPE, unsigned > checkCellDuringCounting( long, long, std::map< INT_TYPE, unsigned > );
         INT_TYPE mapIfPeriodic( long );
         INT_TYPE getNeighborhood_MaxFranction( std::map< INT_TYPE, unsigned > );
+        void makeMonteCarloSimulation( unsigned );
+        void shuffleMonteCarloVector();
+        void iterateOverMCVector( std::vector< std::tuple< INT_TYPE, INT_TYPE > > );
+        void inspectCellEnergy( INT_TYPE, INT_TYPE );
+        unsigned calculateCellEnergy( std::map< INT_TYPE, unsigned >, INT_TYPE );
+        void checkCellEnergeticStatus( std::map< INT_TYPE, unsigned >, unsigned , INT_TYPE, INT_TYPE );
     public:
         GrainsGrowth( unsigned , std::string = "von_neumann", std::string = "absorbing", std::string = "standard");
         ~GrainsGrowth();
-        INT_TYPE ** makeSimulation( unsigned );
+        INT_TYPE ** makeSimulation( unsigned, unsigned = 0 );
         std::string gridToDisplay();
         SIZE_TYPE getSize();
         void setSize( SIZE_TYPE );

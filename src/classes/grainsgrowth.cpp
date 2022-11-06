@@ -22,6 +22,7 @@ namespace simula{
         checkInput_BoundaryConditionsType(inBoundaryConditionsType);
         checkInput_SimulationType(inSimulationType);
         setNeighborhoodVector();
+        setMonteCarloVector();
         grid = initGrid(grid);
         nextGrid = initGrid(nextGrid);
     }
@@ -93,8 +94,6 @@ namespace simula{
                 monteCarloVector.push_back( { x, y } );
             }
         }
-        std::default_random_engine random_engine = std::default_random_engine {};
-        std::shuffle(std::begin(monteCarloVector), std::end(monteCarloVector), random_engine);
     }
 
     INT_TYPE ** GrainsGrowth::initGrid( INT_TYPE ** gridObject )
@@ -110,34 +109,20 @@ namespace simula{
     }
 
     /************************************************
-     *      Simulation operations
+     *      Simulation preparation
      ***********************************************/
 
-    INT_TYPE ** GrainsGrowth::makeSimulation( unsigned numberOfSeeds )
+    INT_TYPE ** GrainsGrowth::makeSimulation( unsigned numberOfNucleus, unsigned numberOfMCExecutions )
     {        
-        putSeedsInGrid(numberOfSeeds);
         nextGrid = copyGrid(grid);
-
-        createBasicStructure();
-
-        return nextGrid;
-    }
-
-    void GrainsGrowth::putSeedsInGrid( unsigned numberOfSeeds )
-    {
-        srand ( time( NULL ));
-        SIZE_TYPE x, y;
-
-        for (unsigned i = 1; i < numberOfSeeds + 1; ++i)
+        createBasicStructure(numberOfNucleus);
+        std::cout << gridToDisplay() << "\n";
+        if (simulationType == "monte_carlo") 
         {
-            do
-            {
-                x = rand() % dimSize;
-                y = rand() % dimSize;
-            } while (grid[x][y] != 0);
-
-            grid[x][y] = i;
+            numberOfMCExecutions = numberOfMCExecutions > 0 ? numberOfMCExecutions : numberOfNucleus;
+            makeMonteCarloSimulation(numberOfMCExecutions);
         }
+        return nextGrid;
     }
 
     INT_TYPE ** GrainsGrowth::copyGrid( INT_TYPE ** modelGrid )
@@ -152,14 +137,33 @@ namespace simula{
         return targetGrid;
     }
 
-    void GrainsGrowth::createBasicStructure()
+    void GrainsGrowth::createBasicStructure( unsigned numberOfNucleus)
     {
         bool change_happened_iter = true;
+
+        putNucleusInGrid(numberOfNucleus);
 
         while (change_happened_iter)
         {
             change_happened_iter = iterateOverGrid();
             grid = copyGrid(nextGrid);
+        }
+    }
+
+    void GrainsGrowth::putNucleusInGrid( unsigned numberOfNucleus )
+    {
+        srand ( time( NULL ));
+        SIZE_TYPE x, y;
+
+        for (unsigned i = 1; i < numberOfNucleus + 1; ++i)
+        {
+            do
+            {
+                x = rand() % dimSize;
+                y = rand() % dimSize;
+            } while (grid[x][y] != 0);
+
+            grid[x][y] = i;
         }
     }
 
@@ -178,7 +182,7 @@ namespace simula{
     }
 
     /************************************************
-     *      Simulation operations -> detailed
+     *      Cellular automata operations
      ***********************************************/
 
     bool GrainsGrowth::checkIfCell_IdEqual_0( INT_TYPE cell_x, INT_TYPE cell_y )
@@ -203,6 +207,7 @@ namespace simula{
             if ( skip_process )
             {
                 break;
+                // to reduce repetition of operation if in neighborhoob cell =/= 0
             }
         }
     }
@@ -301,6 +306,78 @@ namespace simula{
     }
 
     /************************************************
+     *      Monte Carlo Simulation
+     ***********************************************/
+
+    void GrainsGrowth::makeMonteCarloSimulation( unsigned numberOfIter )
+    {
+        while (numberOfIter)
+        {
+            shuffleMonteCarloVector();
+            std::vector< std::tuple< SIZE_TYPE, SIZE_TYPE >> iterVector = monteCarloVector;
+            iterateOverMCVector(iterVector);
+
+            numberOfIter--;
+        }
+    }
+
+    void GrainsGrowth::shuffleMonteCarloVector()
+    {
+        std::default_random_engine random_engine = std::default_random_engine {};
+        std::shuffle(std::begin(monteCarloVector), std::end(monteCarloVector), random_engine);
+    }
+
+    void GrainsGrowth::iterateOverMCVector( std::vector< std::tuple< INT_TYPE, INT_TYPE >> iterVector )
+    {
+        for (auto iter = iterVector.begin(); iter != iterVector.end(); )
+        {
+            SIZE_TYPE x = std::get<0>( * iter);
+            SIZE_TYPE y = std::get<1>( * iter);
+
+            inspectCellEnergy(x, y);
+
+            iter = iterVector.erase(iter); // instrad of iter++
+        }
+    }
+
+    void GrainsGrowth::inspectCellEnergy( INT_TYPE cell_x, INT_TYPE cell_y )
+    {
+        std::map< INT_TYPE, unsigned > neighborhoodMap = countNeighborhood(cell_x, cell_y);
+        unsigned initEnergy = calculateCellEnergy( neighborhoodMap , nextGrid[cell_x][cell_y] );
+        
+        if (initEnergy > 0)
+        {
+            checkCellEnergeticStatus(neighborhoodMap, initEnergy, cell_x, cell_y);
+        }
+    }
+
+    void GrainsGrowth::checkCellEnergeticStatus( 
+        std::map< INT_TYPE, unsigned > inMap, unsigned initEnergy, INT_TYPE cell_x, INT_TYPE cell_y 
+        )
+    {
+        INT_TYPE maxFranctionId = getNeighborhood_MaxFranction(inMap);
+        unsigned maxFranctionEnergy = calculateCellEnergy( inMap , maxFranctionId );
+        if (initEnergy > maxFranctionEnergy)
+        {
+            nextGrid[cell_x][cell_y] = maxFranctionId;
+        }
+    }
+
+    unsigned GrainsGrowth::calculateCellEnergy( std::map< INT_TYPE, unsigned > inMAp , INT_TYPE id )
+    {
+        inMAp.erase( inMAp.find( id ) );
+        // count all without indicated id
+        unsigned sum = std::accumulate ( 
+            inMAp.begin(), inMAp.end(), 0, 
+            [] ( unsigned acc, std::pair< INT_TYPE, unsigned > p ) 
+            {
+                return ( acc + p.second ); 
+            } 
+        );
+        return sum;
+    }
+
+    /************************************************
      *      Outbounde actions
      ***********************************************/
 
@@ -334,6 +411,7 @@ namespace simula{
         dimSize = newDimSize;
         grid = initGrid(grid);
         nextGrid = initGrid(nextGrid);
+        setMonteCarloVector();
     }
 
     INT_TYPE ** GrainsGrowth::getGrid()
