@@ -5,12 +5,12 @@
 
 int main(void)
 {   
-    INT_TYPE size = 15;
-    INT_TYPE nucleusNum = 9;
-    INT_TYPE iterMC = 7;
+    INT_TYPE size = 9;
+    INT_TYPE nucleusNum = 6;
+    INT_TYPE iterMC = 5;
 
-    simula::GrainsGrowth grainsGrowth(size, "moore", "periodic", "monte_carlo");
+    simula::GrainsGrowth grainsGrowth(size, "moore", "periodic", "3D", "monte_carlo");
     grainsGrowth.makeSimulation(nucleusNum, iterMC);
-    std::string matrixStr = grainsGrowth.gridToDisplay();
+    std::string matrixStr = grainsGrowth.spaceToDisplay();
     std::cout << matrixStr;
 }

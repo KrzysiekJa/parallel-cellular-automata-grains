@@ -14,17 +14,20 @@ namespace simula{
         unsigned inputSize, 
         std::string inCA_NeighborhoodType, 
         std::string inBoundaryConditionsType,
+        std::string inDimensionalityType,
         std::string inSimulationType
         )
     {
         dimSize = inputSize;
         checkInput_NeighborhoodType(inCA_NeighborhoodType);
         checkInput_BoundaryConditionsType(inBoundaryConditionsType);
+        checkInput_DimensionalityType(inDimensionalityType);
         checkInput_SimulationType(inSimulationType);
+        setThirdDim();
         setNeighborhoodVector();
         setMonteCarloVector();
-        grid = initGrid(grid);
-        nextGrid = initGrid(nextGrid);
+        space = initSpace(space);
+        nextSpace = initSpace(nextSpace);
     }
 
     GrainsGrowth::~GrainsGrowth()
@@ -59,9 +62,23 @@ namespace simula{
         }
     }
 
+    void GrainsGrowth::checkInput_DimensionalityType( std::string inDimensionalityType )
+    {
+        if (inDimensionalityType == "2D" || 
+                inDimensionalityType == "3D"
+            )
+        {
+            dimensionalityType = inDimensionalityType;
+        }
+        else
+        {
+            dimensionalityType = "2D";
+        }
+    }
+
     void GrainsGrowth::checkInput_SimulationType( std::string inSimulationType )
     {
-        if (inSimulationType == "standard" || 
+        if (inSimulationType == "none" || 
             inSimulationType == "monte_carlo"
             )
         {
@@ -69,7 +86,23 @@ namespace simula{
         }
         else
         {
-            CA_NeighborhoodType = "standard";
+            CA_NeighborhoodType = "none";
+        }
+    }
+
+    void GrainsGrowth::setThirdDim()
+    {
+        if (dimensionalityType == "2D")
+        {
+            thirdDim = 1;
+        }
+        if (dimensionalityType == "3D")
+        {
+            thirdDim = dimSize;
+        }
+        else
+        {
+            dimensionalityType = 1;
         }
     }
 
@@ -77,11 +110,30 @@ namespace simula{
     {
         if(CA_NeighborhoodType == "von_neumann")
         {
-            neighborhoodVector = {{0, -1}, {-1, 0}, {0, 1}, {1, 0}};
+            if (dimensionalityType == "2D")
+            {
+                neighborhoodVector = {{0, -1, 0}, {-1, 0, 0}, {0, 1, 0}, {1, 0, 0}};
+            }
+            if (dimensionalityType == "3D")
+            {
+                neighborhoodVector = {{0, -1, 0}, {-1, 0, 0}, {0, 1, 0}, {1, 0, 0}, {0, 0, 1}, {0, 0, -1}};
+            }
         }
         if(CA_NeighborhoodType == "moore")
         {
-            neighborhoodVector = {{0, -1}, {-1, -1}, {-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}};
+            if (dimensionalityType == "2D")
+            {
+                neighborhoodVector = {{0, -1, 0}, {-1, -1, 0}, {-1, 0, 0}, {-1, 1, 0}, 
+                                        {0, 1, 0}, {1, 1, 0}, {1, 0, 0}, {1, -1, 0}};
+            }
+            if (dimensionalityType == "3D")
+            {
+                neighborhoodVector = {{-1, -1, -1}, {-1, -1, 0}, {-1, -1, 1}, {-1, 0, -1}, {-1, 0, 0}, 
+                                        {-1, 0, 1}, {-1, 1, -1}, {-1, 1, 0}, {-1, 1, 1}, {0, -1, -1}, 
+                                        {0, -1, 0}, {0, -1, 1}, {0, 0, -1}, {0, 0, 1}, {0, 1, -1}, 
+                                        {0, 1, 0}, {0, 1, 1}, {1, -1, -1}, {1, -1, 0}, {1, -1, 1}, 
+                                        {1, 0, -1}, {1, 0, 0}, {1, 0, 1}, {1, 1, -1}, {1, 1, 0}, {1, 1, 1}};
+            }
         }
     }
 
@@ -91,69 +143,85 @@ namespace simula{
         {
             for (SIZE_TYPE y = 0; y < dimSize; ++y)
             {
-                monteCarloVector.push_back( { x, y } );
+                for (SIZE_TYPE z = 0; z < thirdDim; ++z)
+                {
+                    monteCarloVector.push_back( { x, y, z} );
+                }
             }
         }
     }
 
-    INT_TYPE ** GrainsGrowth::initGrid( INT_TYPE ** gridObject )
+    INT_TYPE *** GrainsGrowth::initSpace( INT_TYPE *** spaceObject )
     {
-        gridObject = new INT_TYPE * [dimSize];
+        spaceObject = new INT_TYPE ** [dimSize];
         
         for (SIZE_TYPE x = 0; x < dimSize; ++x)
         {
-            gridObject[x] = new INT_TYPE [dimSize];
-            memset( gridObject[x], 0, dimSize * sizeof(INT_TYPE) );
+            spaceObject[x] = new INT_TYPE * [dimSize];
+            for (SIZE_TYPE y = 0; y < dimSize; ++y)
+            {
+                spaceObject[x][y] = new INT_TYPE [thirdDim];
+                for (SIZE_TYPE z = 0; z < thirdDim; ++z)
+                {
+                    spaceObject[x][y][z] = 0;
+                }
+                // didn't worked: memset( spaceObject[x][y], 0, thirdDim * sizeof(INT_TYPE) );
+            }
         }
-        return gridObject;
+        return spaceObject;
     }
 
     /************************************************
      *      Simulation preparation
      ***********************************************/
 
-    INT_TYPE ** GrainsGrowth::makeSimulation( unsigned numberOfNucleus, unsigned numberOfMCExecutions )
+    INT_TYPE *** GrainsGrowth::makeSimulation( unsigned numberOfNucleus, unsigned numberOfMCExecutions )
     {        
-        nextGrid = copyGrid(grid);
+        nextSpace = copySpace(space);
         createBasicStructure(numberOfNucleus);
-        std::cout << gridToDisplay() << "\n";
+        std::cout << spaceToDisplay() << "\n";
         if (simulationType == "monte_carlo") 
         {
             numberOfMCExecutions = numberOfMCExecutions > 0 ? numberOfMCExecutions : numberOfNucleus;
             makeMonteCarloSimulation(numberOfMCExecutions);
         }
-        return nextGrid;
+        return nextSpace;
     }
 
-    INT_TYPE ** GrainsGrowth::copyGrid( INT_TYPE ** modelGrid )
+    INT_TYPE *** GrainsGrowth::copySpace( INT_TYPE *** modelSpace )
     {
-        INT_TYPE ** targetGrid = new INT_TYPE * [dimSize];
+        INT_TYPE *** targetSpace = new INT_TYPE ** [dimSize];
 
-        for (SIZE_TYPE x = 0; x < dimSize; ++x){
-            targetGrid[x] = new INT_TYPE[dimSize];
-            std::copy( &modelGrid[x][0],  &modelGrid[x][dimSize],  targetGrid[x] );
+        for (SIZE_TYPE x = 0; x < dimSize; ++x)
+        {
+            targetSpace[x] = new INT_TYPE * [dimSize];
+
+            for (SIZE_TYPE y = 0; y < dimSize; ++y)
+            {
+                targetSpace[x][y] = new INT_TYPE [dimSize];
+                std::copy( &modelSpace[x][y][0],  &modelSpace[x][y][thirdDim],  targetSpace[x][y] );
+            }
         }
-
-        return targetGrid;
+        return targetSpace;
     }
 
     void GrainsGrowth::createBasicStructure( unsigned numberOfNucleus)
     {
         bool change_happened_iter = true;
 
-        putNucleusInGrid(numberOfNucleus);
+        putNucleusInSpace(numberOfNucleus);
 
         while (change_happened_iter)
         {
-            change_happened_iter = iterateOverGrid();
-            grid = copyGrid(nextGrid);
+            change_happened_iter = iterateOverSpace();
+            space = copySpace(nextSpace);
         }
     }
 
-    void GrainsGrowth::putNucleusInGrid( unsigned numberOfNucleus )
+    void GrainsGrowth::putNucleusInSpace( unsigned numberOfNucleus )
     {
         srand ( time( NULL ));
-        SIZE_TYPE x, y;
+        SIZE_TYPE x, y, z;
 
         for (unsigned i = 1; i < numberOfNucleus + 1; ++i)
         {
@@ -161,21 +229,25 @@ namespace simula{
             {
                 x = rand() % dimSize;
                 y = rand() % dimSize;
-            } while (grid[x][y] != 0);
+                z = rand() % thirdDim;
+            } while (space[x][y][z] != 0);
 
-            grid[x][y] = i;
+            space[x][y][z] = i;
         }
     }
 
-    bool GrainsGrowth::iterateOverGrid()
+    bool GrainsGrowth::iterateOverSpace()
     {
         bool zero_hit = false;
         for (SIZE_TYPE x = 0; x < dimSize; ++x)
         {
             for (SIZE_TYPE y = 0; y < dimSize; ++y)
             {
-                zero_hit = checkIfCell_IdEqual_0(x, y) || zero_hit;
+                for (SIZE_TYPE z = 0; z < thirdDim; ++z)
+                {
+                    zero_hit = checkIfCell_IdEqual_0(x, y, z) || zero_hit;
                 // if change happened variable keeps the state of truth
+                }
             }
         }
         return zero_hit;
@@ -185,11 +257,11 @@ namespace simula{
      *      Cellular automata operations
      ***********************************************/
 
-    bool GrainsGrowth::checkIfCell_IdEqual_0( INT_TYPE cell_x, INT_TYPE cell_y )
+    bool GrainsGrowth::checkIfCell_IdEqual_0( INT_TYPE cell_x, INT_TYPE cell_y , INT_TYPE cell_z)
     {
-        if (grid[cell_x][cell_y] == 0)
+        if (space[cell_x][cell_y][cell_z] == 0)
         {
-            checkCell_NeighborhoodIds(cell_x, cell_y);
+            checkCell_NeighborhoodIds(cell_x, cell_y, cell_z);
             return true;
         }
         else
@@ -198,12 +270,12 @@ namespace simula{
         }
     }
 
-    void GrainsGrowth::checkCell_NeighborhoodIds( INT_TYPE cell_x, INT_TYPE cell_y )
+    void GrainsGrowth::checkCell_NeighborhoodIds( INT_TYPE cell_x, INT_TYPE cell_y, INT_TYPE cell_z )
     {
         bool skip_process = false;
         for (auto iter = neighborhoodVector.begin(); iter != neighborhoodVector.end(); ++iter)
         {
-            skip_process = inspectNeighborhoodCell(cell_x, cell_y, * iter);
+            skip_process = inspectNeighborhoodCell(cell_x, cell_y, cell_z, * iter);
             if ( skip_process )
             {
                 break;
@@ -213,34 +285,36 @@ namespace simula{
     }
 
     bool GrainsGrowth::inspectNeighborhoodCell( 
-        INT_TYPE cell_x, INT_TYPE cell_y, std::tuple< short, short > iter
+        INT_TYPE cell_x, INT_TYPE cell_y, INT_TYPE cell_z, std::tuple< short, short, short > iter
         )
     {
         long neigh_cell_x = cell_x + std::get<0>(iter);
         long neigh_cell_y = cell_y + std::get<1>(iter);
+        long neigh_cell_z = cell_z + std::get<2>(iter);
 
         if( neigh_cell_x >= 0 && neigh_cell_x < dimSize && 
-            neigh_cell_y >= 0 && neigh_cell_y < dimSize )
+            neigh_cell_y >= 0 && neigh_cell_y < dimSize && 
+            neigh_cell_z >= 0 && neigh_cell_z < thirdDim)
         {
-            if ( grid[neigh_cell_x][neigh_cell_y] != 0 )
+            if ( space[neigh_cell_x][neigh_cell_y][neigh_cell_z] != 0 )
             {
                 // found cell in neighborhood with id =/= 0
-                performCell_IdChange(cell_x, cell_y);
+                performCell_IdChange(cell_x, cell_y, cell_z);
                 return true;
             }
         }
         return false;
     }
 
-    void GrainsGrowth::performCell_IdChange( INT_TYPE cell_x, INT_TYPE cell_y )
+    void GrainsGrowth::performCell_IdChange( INT_TYPE cell_x, INT_TYPE cell_y, INT_TYPE cell_z )
     {
-        std::map< INT_TYPE, unsigned > neighborhoodMap = countNeighborhood(cell_x, cell_y);
+        std::map< INT_TYPE, unsigned > neighborhoodMap = countNeighborhood(cell_x, cell_y, cell_z);
         INT_TYPE newId = getNeighborhood_MaxFranction(neighborhoodMap);
-        nextGrid[cell_x][cell_y] = newId;
+        nextSpace[cell_x][cell_y][cell_z] = newId;
     }
 
     std::map< INT_TYPE, unsigned > GrainsGrowth::countNeighborhood(
-        INT_TYPE cell_x, INT_TYPE cell_y
+        INT_TYPE cell_x, INT_TYPE cell_y, INT_TYPE cell_z
         )
     {
         std::map<INT_TYPE, unsigned> rMap;
@@ -249,20 +323,22 @@ namespace simula{
         {
             long neigh_cell_x = cell_x + std::get<0>( * iter);
             long neigh_cell_y = cell_y + std::get<1>( * iter);
+            long neigh_cell_z = cell_z + std::get<2>( * iter);
 
-            rMap = checkCellDuringCounting(neigh_cell_x, neigh_cell_y, rMap);
+            rMap = checkCellDuringCounting(neigh_cell_x, neigh_cell_y, neigh_cell_z, rMap);
         }
         return rMap;
     }
 
     std::map< INT_TYPE, unsigned > GrainsGrowth::checkCellDuringCounting(
-        long neigh_cell_x, long neigh_cell_y, std::map< INT_TYPE, unsigned > valMap
+        long neigh_cell_x, long neigh_cell_y, long neigh_cell_z, std::map< INT_TYPE, unsigned > valMap
         )
     {
         if( neigh_cell_x >= 0 && neigh_cell_x < dimSize && 
-            neigh_cell_y >= 0 && neigh_cell_y < dimSize )
+            neigh_cell_y >= 0 && neigh_cell_y < dimSize && 
+            neigh_cell_z >= 0 && neigh_cell_z < thirdDim)
         {
-            INT_TYPE value = grid[neigh_cell_x][neigh_cell_y];
+            INT_TYPE value = space[neigh_cell_x][neigh_cell_y][neigh_cell_z];
             if (value != 0)
             {
                 valMap[ value ]++;
@@ -271,9 +347,9 @@ namespace simula{
         else 
         {   // specially for periodic boundary conditions case
             if (boundaryConditionsType == "periodic" && 
-                grid[ mapIfPeriodic(neigh_cell_x) ][ mapIfPeriodic(neigh_cell_y) ] != 0 )
+                space[ mapIfPeriodic(neigh_cell_x) ][ mapIfPeriodic(neigh_cell_y) ][ mapIfPeriodic(neigh_cell_z) ] != 0 )
             {
-                INT_TYPE value = grid[ mapIfPeriodic(neigh_cell_x) ][ mapIfPeriodic(neigh_cell_y) ];
+                INT_TYPE value = space[ mapIfPeriodic(neigh_cell_x) ][ mapIfPeriodic(neigh_cell_y) ][ mapIfPeriodic(neigh_cell_z) ];
                 valMap[ value ]++;
             }
         }
@@ -314,7 +390,7 @@ namespace simula{
         while (numberOfIter)
         {
             shuffleMonteCarloVector();
-            std::vector< std::tuple< SIZE_TYPE, SIZE_TYPE >> iterVector = monteCarloVector;
+            std::vector< std::tuple< SIZE_TYPE, SIZE_TYPE, SIZE_TYPE >> iterVector = monteCarloVector;
             iterateOverMCVector(iterVector);
 
             numberOfIter--;
@@ -327,39 +403,42 @@ namespace simula{
         std::shuffle(std::begin(monteCarloVector), std::end(monteCarloVector), random_engine);
     }
 
-    void GrainsGrowth::iterateOverMCVector( std::vector< std::tuple< INT_TYPE, INT_TYPE >> iterVector )
+    void GrainsGrowth::iterateOverMCVector( 
+        std::vector< std::tuple< INT_TYPE, INT_TYPE, INT_TYPE >> iterVector 
+        )
     {
         for (auto iter = iterVector.begin(); iter != iterVector.end(); )
         {
             SIZE_TYPE x = std::get<0>( * iter);
             SIZE_TYPE y = std::get<1>( * iter);
+            SIZE_TYPE z = std::get<2>( * iter);
 
-            inspectCellEnergy(x, y);
+            inspectCellEnergy(x, y, z);
 
             iter = iterVector.erase(iter); // instrad of iter++
         }
     }
 
-    void GrainsGrowth::inspectCellEnergy( INT_TYPE cell_x, INT_TYPE cell_y )
+    void GrainsGrowth::inspectCellEnergy( INT_TYPE cell_x, INT_TYPE cell_y, INT_TYPE cell_z )
     {
-        std::map< INT_TYPE, unsigned > neighborhoodMap = countNeighborhood(cell_x, cell_y);
-        unsigned initEnergy = calculateCellEnergy( neighborhoodMap , nextGrid[cell_x][cell_y] );
+        std::map< INT_TYPE, unsigned > neighborhoodMap = countNeighborhood(cell_x, cell_y, cell_z);
+        unsigned initEnergy = calculateCellEnergy( neighborhoodMap , nextSpace[cell_x][cell_y][cell_z] );
         
         if (initEnergy > 0)
         {
-            checkCellEnergeticStatus(neighborhoodMap, initEnergy, cell_x, cell_y);
+            checkCellEnergeticStatus(neighborhoodMap, initEnergy, cell_x, cell_y, cell_z);
         }
     }
 
     void GrainsGrowth::checkCellEnergeticStatus( 
-        std::map< INT_TYPE, unsigned > inMap, unsigned initEnergy, INT_TYPE cell_x, INT_TYPE cell_y 
+        std::map< INT_TYPE, unsigned > inMap, unsigned initEnergy, INT_TYPE cell_x, INT_TYPE cell_y, INT_TYPE cell_z 
         )
     {
         INT_TYPE maxFranctionId = getNeighborhood_MaxFranction(inMap);
         unsigned maxFranctionEnergy = calculateCellEnergy( inMap , maxFranctionId );
         if (initEnergy > maxFranctionEnergy)
         {
-            nextGrid[cell_x][cell_y] = maxFranctionId;
+            nextSpace[cell_x][cell_y][cell_z] = maxFranctionId;
         }
     }
 
@@ -381,7 +460,7 @@ namespace simula{
      *      Outbounde actions
      ***********************************************/
 
-    std::string GrainsGrowth::gridToDisplay()
+    std::string GrainsGrowth::spaceToDisplay()
     {
         std::string outputStr = "";
 
@@ -389,8 +468,12 @@ namespace simula{
         {
             for (int y = 0; y < dimSize; ++y)
             {
-                outputStr += std::to_string( nextGrid[x][y] );
-                outputStr += " ";
+                for (int z = 0; z < thirdDim; ++z)
+                {
+                    outputStr += std::to_string( nextSpace[x][y][z] );
+                    outputStr += " ";
+                }
+                outputStr += "\n";
             }
             outputStr += "\n";
         }
@@ -409,14 +492,14 @@ namespace simula{
     void GrainsGrowth::setSize( SIZE_TYPE newDimSize )
     {
         dimSize = newDimSize;
-        grid = initGrid(grid);
-        nextGrid = initGrid(nextGrid);
+        space = initSpace(space);
+        nextSpace = initSpace(nextSpace);
         setMonteCarloVector();
     }
 
-    INT_TYPE ** GrainsGrowth::getGrid()
+    INT_TYPE *** GrainsGrowth::getSpace()
     {
-        return nextGrid;
+        return nextSpace;
     }
     void GrainsGrowth::setNeighborhoodType( std::string inCA_NeighborhoodType )
     {
@@ -427,6 +510,11 @@ namespace simula{
     void GrainsGrowth::setBoundaryConditionsType( std::string inBoundaryConditionsType )
     {
         checkInput_BoundaryConditionsType(inBoundaryConditionsType);
+    }
+
+    void GrainsGrowth::setDimensionalityType( std::string inDimensionalityType )
+    {
+        checkInput_DimensionalityType(inDimensionalityType);
     }
 
     void GrainsGrowth::setSimulationType( std::string inSimulationType )
