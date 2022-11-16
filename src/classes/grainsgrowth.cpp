@@ -177,9 +177,9 @@ namespace simula{
 
     INT_TYPE *** GrainsGrowth::makeSimulation( unsigned numberOfNucleus, unsigned numberOfMCExecutions )
     {        
-        nextSpace = copySpace(space);
-        createBasicStructure(numberOfNucleus);
-        std::cout << spaceToDisplay() << "\n";
+        createBasicStructure(numberOfNucleus); // Cellular automata
+        //std::cout << spaceToDisplay() << "\n";
+
         if (simulationType == "monte_carlo") 
         {
             numberOfMCExecutions = numberOfMCExecutions > 0 ? numberOfMCExecutions : numberOfNucleus;
@@ -294,7 +294,7 @@ namespace simula{
 
         if( neigh_cell_x >= 0 && neigh_cell_x < dimSize && 
             neigh_cell_y >= 0 && neigh_cell_y < dimSize && 
-            neigh_cell_z >= 0 && neigh_cell_z < thirdDim)
+            neigh_cell_z >= 0 && neigh_cell_z < thirdDim )
         {
             if ( space[neigh_cell_x][neigh_cell_y][neigh_cell_z] != 0 )
             {
@@ -336,7 +336,7 @@ namespace simula{
     {
         if( neigh_cell_x >= 0 && neigh_cell_x < dimSize && 
             neigh_cell_y >= 0 && neigh_cell_y < dimSize && 
-            neigh_cell_z >= 0 && neigh_cell_z < thirdDim)
+            neigh_cell_z >= 0 && neigh_cell_z < thirdDim )
         {
             INT_TYPE value = space[neigh_cell_x][neigh_cell_y][neigh_cell_z];
             if (value != 0)
@@ -390,8 +390,8 @@ namespace simula{
         while (numberOfIter)
         {
             shuffleMonteCarloVector();
-            std::vector< std::tuple< SIZE_TYPE, SIZE_TYPE, SIZE_TYPE >> iterVector = monteCarloVector;
-            iterateOverMCVector(iterVector);
+            iterateOverMCVector();
+            space = copySpace(nextSpace);
 
             numberOfIter--;
         }
@@ -403,10 +403,10 @@ namespace simula{
         std::shuffle(std::begin(monteCarloVector), std::end(monteCarloVector), random_engine);
     }
 
-    void GrainsGrowth::iterateOverMCVector( 
-        std::vector< std::tuple< INT_TYPE, INT_TYPE, INT_TYPE >> iterVector 
-        )
+    void GrainsGrowth::iterateOverMCVector()
     {
+        std::vector< std::tuple< SIZE_TYPE, SIZE_TYPE, SIZE_TYPE >> iterVector = monteCarloVector;
+
         for (auto iter = iterVector.begin(); iter != iterVector.end(); )
         {
             SIZE_TYPE x = std::get<0>( * iter);
@@ -422,7 +422,7 @@ namespace simula{
     void GrainsGrowth::inspectCellEnergy( INT_TYPE cell_x, INT_TYPE cell_y, INT_TYPE cell_z )
     {
         std::map< INT_TYPE, unsigned > neighborhoodMap = countNeighborhood(cell_x, cell_y, cell_z);
-        unsigned initEnergy = calculateCellEnergy( neighborhoodMap , nextSpace[cell_x][cell_y][cell_z] );
+        unsigned initEnergy = calculateCellEnergy( neighborhoodMap , space[cell_x][cell_y][cell_z] );
         
         if (initEnergy > 0)
         {
@@ -492,6 +492,7 @@ namespace simula{
     void GrainsGrowth::setSize( SIZE_TYPE newDimSize )
     {
         dimSize = newDimSize;
+        setThirdDim();
         space = initSpace(space);
         nextSpace = initSpace(nextSpace);
         setMonteCarloVector();
@@ -501,6 +502,44 @@ namespace simula{
     {
         return nextSpace;
     }
+
+    SIZE_TYPE *** GrainsGrowth::createEnergySpace() // private method
+    {
+        SIZE_TYPE *** spaceObject = new SIZE_TYPE ** [dimSize];
+        
+        for (SIZE_TYPE x = 0; x < dimSize; ++x)
+        {
+            spaceObject[x] = new INT_TYPE * [dimSize];
+            for (SIZE_TYPE y = 0; y < dimSize; ++y)
+            {
+                spaceObject[x][y] = new INT_TYPE [thirdDim];
+                for (SIZE_TYPE z = 0; z < thirdDim; ++z)
+                {
+                    spaceObject[x][y][z] = 0;
+                }
+            }
+        }
+        return spaceObject;
+    }
+
+    SIZE_TYPE *** GrainsGrowth::getEnergySpace()
+    {
+        SIZE_TYPE *** energySpace = createEnergySpace();
+
+        for (SIZE_TYPE x = 0; x < dimSize; ++x)
+        {
+            for (SIZE_TYPE y = 0; y < dimSize; ++y)
+            {
+                for (SIZE_TYPE z = 0; z < thirdDim; ++z)
+                {
+                    std::map< INT_TYPE, unsigned > neighborhoodMap = countNeighborhood(x, y, z);
+                    energySpace[x][y][z] = calculateCellEnergy( neighborhoodMap , space[x][y][z] );
+                }
+            }
+        }
+        return energySpace;
+    }
+
     void GrainsGrowth::setNeighborhoodType( std::string inCA_NeighborhoodType )
     {
         checkInput_NeighborhoodType(inCA_NeighborhoodType);

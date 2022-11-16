@@ -45,10 +45,12 @@ namespace simula{
 
         void makeMonteCarloSimulation( unsigned );
         void shuffleMonteCarloVector();
-        void iterateOverMCVector( std::vector< std::tuple< INT_TYPE, INT_TYPE, INT_TYPE > > );
+        void iterateOverMCVector();
         void inspectCellEnergy( INT_TYPE, INT_TYPE, INT_TYPE );
         void checkCellEnergeticStatus( std::map< INT_TYPE, unsigned >, unsigned , INT_TYPE, INT_TYPE, INT_TYPE );
         unsigned calculateCellEnergy( std::map< INT_TYPE, unsigned >, INT_TYPE );
+
+        SIZE_TYPE *** createEnergySpace();
     public:
         GrainsGrowth( 
             unsigned , std::string = "von_neumann", std::string = "absorbing", 
@@ -60,6 +62,7 @@ namespace simula{
         SIZE_TYPE getSize();
         void setSize( SIZE_TYPE );
         INT_TYPE *** getSpace();
+        SIZE_TYPE *** getEnergySpace();
         void setNeighborhoodType( std::string );
         void setBoundaryConditionsType( std::string );
         void setDimensionalityType( std::string );
