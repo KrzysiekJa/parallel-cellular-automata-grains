@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<GG_config>
+    <dimSize>10</dimSize>
+    <CA_NeighborhoodType>moore</CA_NeighborhoodType>
+    <boundaryConditionsType>periodic</boundaryConditionsType>
+    <dimensionalityType>3D</dimensionalityType>
+    <numberOfNucleus>7</numberOfNucleus>
+    <simulationType>monte_carlo</simulationType>
+    <iterationsMC>7</iterationsMC>
+    <outputFile>test.csv</outputFile>
+</GG_config>

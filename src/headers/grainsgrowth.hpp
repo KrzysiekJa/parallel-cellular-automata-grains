@@ -52,10 +52,7 @@ namespace simula{
 
         SIZE_TYPE *** createEnergySpace();
     public:
-        GrainsGrowth( 
-            unsigned , std::string = "von_neumann", std::string = "absorbing", 
-            std::string = "2D", std::string = "none" 
-            );
+        GrainsGrowth( std::map< std::string, std::string > );
         ~GrainsGrowth();
         INT_TYPE *** makeSimulation( unsigned, unsigned = 0 );
         std::string spaceToDisplay();

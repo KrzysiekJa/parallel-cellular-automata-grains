@@ -10,19 +10,13 @@ namespace simula{
      *      Initial actions
      ***********************************************/
 
-    GrainsGrowth::GrainsGrowth(
-        unsigned inputSize, 
-        std::string inCA_NeighborhoodType, 
-        std::string inBoundaryConditionsType,
-        std::string inDimensionalityType,
-        std::string inSimulationType
-        )
+    GrainsGrowth::GrainsGrowth( std::map< std::string, std::string > inMap )
     {
-        dimSize = inputSize;
-        checkInput_NeighborhoodType(inCA_NeighborhoodType);
-        checkInput_BoundaryConditionsType(inBoundaryConditionsType);
-        checkInput_DimensionalityType(inDimensionalityType);
-        checkInput_SimulationType(inSimulationType);
+        dimSize = std::stoul( inMap["dimSize"] );
+        checkInput_NeighborhoodType( inMap["CA_NeighborhoodType"] );
+        checkInput_BoundaryConditionsType( inMap["boundaryConditionsType"] );
+        checkInput_DimensionalityType( inMap["dimensionalityType"] );
+        checkInput_SimulationType( inMap["simulationType"] );
         setThirdDim();
         setNeighborhoodVector();
         setMonteCarloVector();

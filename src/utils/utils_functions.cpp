@@ -1,10 +1,33 @@
 #include <map>
 #include <fstream>
 #include <string>
+#include <boost/foreach.hpp>
+#include <boost/property_tree/xml_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
 #include "../headers/variables.hpp"
 
 
 namespace utils{
+
+    std::map< std::string, std::string > readDataFromXML( std::istream & inStream )
+    {
+        std::map< std::string, std::string > outputMap;
+
+        using boost::property_tree::ptree;
+        ptree pt;
+        read_xml( inStream, pt );
+        ptree subtree = pt.get_child("GG_config");
+
+        BOOST_FOREACH( ptree::value_type const& node, subtree.get_child( "" ) ) 
+        {
+            std::string label = node.first;
+            std::string value = subtree.get<std::string>( label );
+            outputMap.insert( {label, value} );
+            
+        }
+        return outputMap;
+    }
+
 
     void toRGBColor( SIZE_TYPE p, SIZE_TYPE np, float & r, float & g, float & b )
     {
@@ -69,4 +92,15 @@ namespace utils{
         outputFile.close();
     }
 
+    void saveTimeMeasurements(
+        std::string outputFileName, std::map< std::string, double > timeMeasurementsMap
+        )
+    {
+        std::ofstream outputFile( outputFileName, std::ios::trunc );
+
+        outputFile << timeMeasurementsMap["initTime"] << "\n";
+        outputFile << timeMeasurementsMap["simulTime"] << "\n";
+        outputFile << timeMeasurementsMap["savingTime"];
+        outputFile.close();
+    }
 }
