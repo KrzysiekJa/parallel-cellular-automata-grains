@@ -7,5 +7,6 @@
     <numberOfNucleus>7</numberOfNucleus>
     <simulationType>monte_carlo</simulationType>
     <iterationsMC>7</iterationsMC>
-    <outputFile>data_file/test.csv</outputFile>
+    <outputFile>data/test.csv</outputFile>
+    <measurementsFile>data/time.txt</measurementsFile>
 </GG_config>

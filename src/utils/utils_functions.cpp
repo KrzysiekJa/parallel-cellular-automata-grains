@@ -48,6 +48,7 @@ namespace utils{
     }
 
 
+    // ugly function
     void saveSpaceToCSV( 
         std::string outputFileName, 
         INT_TYPE *** matrix3D,
@@ -88,6 +89,7 @@ namespace utils{
         outputFile.close();
     }
 
+
     void saveTimeMeasurements(
         std::string outputFileName, std::map< std::string, double > timeMeasurementsMap
         )
@@ -95,7 +97,8 @@ namespace utils{
         std::ofstream outputFile( outputFileName, std::ios::trunc );
 
         outputFile << timeMeasurementsMap["initTime"] << "\n";
-        outputFile << timeMeasurementsMap["simulTime"] << "\n";
+        outputFile << timeMeasurementsMap["simulCATime"] << "\n"; // Cellular automata
+        outputFile << timeMeasurementsMap["simulMCTime"] << "\n"; // Monte Carlo
         outputFile << timeMeasurementsMap["savingTime"];
         outputFile.close();
     }

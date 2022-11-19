@@ -5,13 +5,14 @@
 #include "utils/utils_functions.cpp"
 
 
-int main(void)
+int main( int argc, char * argv[] )
 {
     /************************************************
      *      Reading from xml config file
      ***********************************************/
-
-    std::ifstream inputFile( "data_file/data.xml" );
+    
+    std::string inFileName( argv[1] );
+    std::ifstream inputFile( "data/data.xml" );
     std::map< std::string, std::string > configDataMap = utils::readDataFromXML( inputFile );
 
     /************************************************
@@ -26,22 +27,24 @@ int main(void)
     std::chrono::duration< double> init_time = t_finish - t_start;
 
     /************************************************
-     *      Simulation
+     *      Simulation CA & MC
      ***********************************************/
 
     t_start = std::chrono::high_resolution_clock::now();
 
-    grainsGrowth.makeSimulation(
-        std::stoul( configDataMap["numberOfNucleus"] ), 
-        std::stoul( configDataMap["iterationsMC"] )
-        );
+    grainsGrowth.createBasicStructure( std::stoul( configDataMap["numberOfNucleus"] ) );
+
+    t_finish = std::chrono::high_resolution_clock::now();
+    std::chrono::duration< double> simula_CA_time = t_finish - t_start;
+    // -- ************** -- //
+    t_start = std::chrono::high_resolution_clock::now();
+
+    grainsGrowth.makeMonteCarloSimulation( std::stoul( configDataMap["iterationsMC"] ) );
     
     t_finish = std::chrono::high_resolution_clock::now();
-    std::chrono::duration< double> simula_time = t_finish - t_start;
+    std::chrono::duration< double> simula_MC_time = t_finish - t_start;
 
-
-    std::string matrixStr = grainsGrowth.spaceToDisplay();
-    //std::cout << matrixStr;
+    //std::string matrixStr = grainsGrowth.spaceToDisplay();
 
     /************************************************
      *      Saving sturcture to csv file
@@ -68,11 +71,11 @@ int main(void)
      *      Saving measured time
      ***********************************************/
     
-    std::string measurementsFile = "data_file/time.txt";
     std::map< std::string, double > timeMeasurementsMap = { 
         {"initTime", init_time.count()}, 
-        {"simulTime", simula_time.count()}, 
+        {"simulCATime", simula_CA_time.count()}, 
+        {"simulMCTime", simula_MC_time.count()}, 
         {"savingTime", saving_time.count()} 
         };
-    utils::saveTimeMeasurements( measurementsFile, timeMeasurementsMap);
+    utils::saveTimeMeasurements( configDataMap["measurementsFile"], timeMeasurementsMap );
 }

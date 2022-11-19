@@ -169,18 +169,18 @@ namespace simula{
      *      Simulation preparation
      ***********************************************/
 
-    INT_TYPE *** GrainsGrowth::makeSimulation( unsigned numberOfNucleus, unsigned numberOfMCExecutions )
-    {        
-        createBasicStructure(numberOfNucleus); // Cellular automata
-        //std::cout << spaceToDisplay() << "\n";
-
-        if (simulationType == "monte_carlo") 
-        {
-            numberOfMCExecutions = numberOfMCExecutions > 0 ? numberOfMCExecutions : numberOfNucleus;
-            makeMonteCarloSimulation(numberOfMCExecutions);
-        }
-        return nextSpace;
-    }
+    //INT_TYPE *** GrainsGrowth::makeSimulation( unsigned numberOfNucleus, unsigned numberOfMCExecutions )
+    //{        
+    //    createBasicStructure(numberOfNucleus); // Cellular automata
+    //    //std::cout << spaceToDisplay() << "\n";
+    //
+    //    if (simulationType == "monte_carlo")
+    //    {
+    //        numberOfMCExecutions = numberOfMCExecutions > 0 ? numberOfMCExecutions : numberOfNucleus;
+    //        makeMonteCarloSimulation(numberOfMCExecutions);
+    //    }
+    //    return nextSpace;
+    //}
 
     INT_TYPE *** GrainsGrowth::copySpace( INT_TYPE *** modelSpace )
     {
@@ -240,7 +240,7 @@ namespace simula{
                 for (SIZE_TYPE z = 0; z < thirdDim; ++z)
                 {
                     zero_hit = checkIfCell_IdEqual_0(x, y, z) || zero_hit;
-                // if change happened variable keeps the state of truth
+                    // if change happened variable keeps the state of truth
                 }
             }
         }

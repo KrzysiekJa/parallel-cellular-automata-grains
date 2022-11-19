@@ -32,7 +32,6 @@ namespace simula{
 
         INT_TYPE *** copySpace( INT_TYPE *** );
         void putNucleusInSpace( unsigned );
-        void createBasicStructure( unsigned );
         bool iterateOverSpace();
         bool checkIfCell_IdEqual_0( INT_TYPE, INT_TYPE, INT_TYPE );
         void checkCell_NeighborhoodIds( INT_TYPE, INT_TYPE, INT_TYPE );
@@ -43,7 +42,6 @@ namespace simula{
         INT_TYPE mapIfPeriodic( long );
         INT_TYPE getNeighborhood_MaxFranction( std::map< INT_TYPE, unsigned > );
 
-        void makeMonteCarloSimulation( unsigned );
         void shuffleMonteCarloVector();
         void iterateOverMCVector();
         void inspectCellEnergy( INT_TYPE, INT_TYPE, INT_TYPE );
@@ -54,7 +52,11 @@ namespace simula{
     public:
         GrainsGrowth( std::map< std::string, std::string > );
         ~GrainsGrowth();
-        INT_TYPE *** makeSimulation( unsigned, unsigned = 0 );
+        //INT_TYPE *** makeSimulation( unsigned, unsigned = 0 );
+        void createBasicStructure( unsigned );
+        void makeMonteCarloSimulation( unsigned );
+        // both above previously private
+
         std::string spaceToDisplay();
         SIZE_TYPE getSize();
         void setSize( SIZE_TYPE );
