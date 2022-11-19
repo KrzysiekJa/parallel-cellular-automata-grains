@@ -50,13 +50,14 @@ int main(void)
     SIZE_TYPE *** energySpace = grainsGrowth.getEnergySpace();
     SIZE_TYPE size = std::stoul( configDataMap["dimSize"] );
     std::map< std::string, SIZE_TYPE > dimMap { {"first", size}, {"second", size} };
-    configDataMap["dimensionalityType"] == "3D" ? dimMap.insert( {"third", size} ) : dimMap.insert( {"third", 1} );
+    configDataMap["dimensionalityType"] == "3D" ? 
+                dimMap.insert( {"third", size} ) : dimMap.insert( {"third", 1} );
 
     t_start = std::chrono::high_resolution_clock::now();
 
     utils::saveSpaceToCSV( 
         configDataMap["outputFile"], matrix, energySpace, dimMap , 
-        std::stoi( configDataMap["numberOfNucleus"] ), simula_time.count() 
+        std::stoi( configDataMap["numberOfNucleus"] ) 
         );
     
     t_finish = std::chrono::high_resolution_clock::now();
@@ -68,7 +69,9 @@ int main(void)
     
     std::string measurementsFile = "time.txt";
     std::map< std::string, double > timeMeasurementsMap = { 
-        {"initTime", init_time.count()}, {"simulTime", simula_time.count()}, {"savingTime", saving_time.count()} 
+        {"initTime", init_time.count()}, 
+        {"simulTime", simula_time.count()}, 
+        {"savingTime", saving_time.count()} 
         };
     utils::saveTimeMeasurements( measurementsFile, timeMeasurementsMap);
 }

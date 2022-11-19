@@ -53,17 +53,14 @@ namespace utils{
         INT_TYPE *** matrix3D,
         SIZE_TYPE *** energySpace,
         std::map< std::string, SIZE_TYPE > dimMap,
-        SIZE_TYPE numberOfNucleus,
-        double simulationTime
+        SIZE_TYPE numberOfNucleus
         )
     {
         long unsigned id_count = 0;
         float r, g, b;
         std::string outputString = "";
-        double grain_time = simulationTime / (dimMap["first"] * dimMap["second"] * dimMap["third"]);
-        // grain_time for all the same
 
-        outputString += "id,x,y,z,grainId,colorRGB,energy,time\n";
+        outputString += "id,x,y,z,grainId,colorRGB,energy\n";
 
 
         for (SIZE_TYPE x = 0; x < dimMap["first"]; ++x)
@@ -78,8 +75,7 @@ namespace utils{
                     toRGBColor( matrix3D[x][y][z], numberOfNucleus, r, g, b );
                     outputString += std::to_string( int(r*255) ) + " " + std::to_string( int(g*255) ) + " ";
                     outputString += std::to_string( int(b*255) ) + ",";
-                    outputString += std::to_string(energySpace[x][y][z]) + ",";
-                    outputString += std::to_string( grain_time );
+                    outputString += std::to_string(energySpace[x][y][z]);
                     outputString += "\n";
                     ++id_count;
                 }
