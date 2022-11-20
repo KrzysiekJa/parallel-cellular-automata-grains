@@ -1,0 +1,2 @@
+<?xml version='1.0' encoding='us-ascii'?>
+<GG_config><dimensionalityType>2D</dimensionalityType><dimSize>5</dimSize><CA_NeighborhoodType>von_neumann</CA_NeighborhoodType><boundaryConditionsType>absorbing</boundaryConditionsType><numberOfNucleus>5</numberOfNucleus><simulationType>none</simulationType><iterationsMC>2</iterationsMC><outputFile>data/2022-11-20-17:48:09:71_von_neumann_absorbing_none_2D_5.csv</outputFile><measurementsFile>data/2022-11-20-17:48:09:71_von_neumann_absorbing_none_2D_5.txt</measurementsFile></GG_config>

@@ -96,7 +96,7 @@ namespace simula{
         }
         else
         {
-            dimensionalityType = 1;
+            thirdDim = 1;
         }
     }
 
@@ -381,13 +381,16 @@ namespace simula{
 
     void GrainsGrowth::makeMonteCarloSimulation( unsigned numberOfIter )
     {
-        while (numberOfIter)
+        if (simulationType == "monte_carlo")
         {
-            shuffleMonteCarloVector();
-            iterateOverMCVector();
-            space = copySpace(nextSpace);
+            while (numberOfIter)
+            {
+                shuffleMonteCarloVector();
+                iterateOverMCVector();
+                space = copySpace(nextSpace);
 
-            numberOfIter--;
+                numberOfIter--;
+            }
         }
     }
 

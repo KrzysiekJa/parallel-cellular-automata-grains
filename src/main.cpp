@@ -12,9 +12,9 @@ int main( int argc, char * argv[] )
      ***********************************************/
     
     std::string inFileName( argv[1] );
-    std::ifstream inputFile( "data/data.xml" );
+    std::ifstream inputFile( inFileName );
     std::map< std::string, std::string > configDataMap = utils::readDataFromXML( inputFile );
-
+    
     /************************************************
      *      Initializations of structure
      ***********************************************/
