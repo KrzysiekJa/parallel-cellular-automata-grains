@@ -143,7 +143,9 @@ class Ui_MainWindow( QMainWindow ):
     
     def loadFunction(self):
         try:
-            df = self.loadFile()
+            filePath, _ = QtWidgets.QFileDialog.getOpenFileName()
+            df = pd.read_csv(filePath, sep=',')
+            df = df[['x', 'y', 'z', 'grainId']]
         except Exception as e:
             return
         
@@ -156,6 +158,8 @@ class Ui_MainWindow( QMainWindow ):
     def loadFile(self):
         try:
             filePath, _ = QtWidgets.QFileDialog.getOpenFileName()
+            if not filePath:
+                return
             df = pd.read_csv(filePath, sep=',')
             df = df[['x', 'y', 'z', 'grainId']]
         except OSError as err:
@@ -167,7 +171,7 @@ class Ui_MainWindow( QMainWindow ):
     
     def disp2Dimage(self, df):
         image_matrix = self.makePartitionMxt( df, 'x', 'y', df['x'].max()+1 )
-        image_matrix = (image_matrix-1) / (df['grainId'].max()-1) # normalization <0,1>
+        image_matrix = image_matrix / df['grainId'].max() # normalization <0,1>
         image  = Image.fromarray( np.uint8( cm.gist_earth(image_matrix) * 255 ) )
         pixmap = QtGui.QPixmap.fromImage( ImageQt(image) )
         self.labelForPixmap.setPixmap( pixmap.scaled( self.labelForPixmap.size(), QtCore.Qt.KeepAspectRatio ) )
@@ -198,7 +202,7 @@ class Ui_MainWindow( QMainWindow ):
         
         max_fraction = df['grainId'].max()
         image_matrix[ image_matrix==0 ] = max_fraction+1
-        image_matrix = (image_matrix-1) / max_fraction # normalization <0,1>
+        image_matrix = image_matrix / (max_fraction+1) # normalization <0,1>
         
         image  = Image.fromarray( np.uint8( cm.gist_earth(image_matrix) * 255 ) )
         pixmap = QtGui.QPixmap.fromImage( ImageQt(image) )
