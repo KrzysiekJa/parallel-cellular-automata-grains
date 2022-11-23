@@ -1,2 +1,0 @@
-<?xml version='1.0' encoding='us-ascii'?>
-<GG_config><dimensionalityType>3D</dimensionalityType><dimSize>50</dimSize><CA_NeighborhoodType>moore</CA_NeighborhoodType><boundaryConditionsType>periodic</boundaryConditionsType><numberOfNucleus>30</numberOfNucleus><simulationType>monte_carlo</simulationType><iterationsMC>5</iterationsMC><outputFile>data/data.csv</outputFile><measurementsFile>data/data.txt</measurementsFile></GG_config>

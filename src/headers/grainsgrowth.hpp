@@ -40,7 +40,7 @@ namespace simula{
         std::map< INT_TYPE, unsigned > countNeighborhood( INT_TYPE, INT_TYPE, INT_TYPE );
         std::map< INT_TYPE, unsigned > checkCellDuringCounting( long, long, long, std::map< INT_TYPE, unsigned > );
         INT_TYPE mapIfPeriodic( long );
-        INT_TYPE getNeighborhood_MaxFranction( std::map< INT_TYPE, unsigned > );
+        INT_TYPE getNeighborhood_MaxFraction( std::map< INT_TYPE, unsigned > );
 
         void shuffleMonteCarloVector();
         void iterateOverMCVector();

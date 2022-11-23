@@ -1,4 +1,4 @@
-import sys
+import sys, os
 import subprocess
 import datetime
 
@@ -66,9 +66,18 @@ class Ui_MainWindow( QMainWindow ):
         self.runPushButton = QtWidgets.QPushButton(self.centralwidget)
         self.runPushButton.setGeometry(QtCore.QRect(660, 320, 70, 32))
         self.runPushButton.setObjectName("runPushButton")
+        self.createPushButton = QtWidgets.QPushButton(self.centralwidget)
+        self.createPushButton.setGeometry(QtCore.QRect(610, 345, 100, 32))
+        self.createPushButton.setObjectName("createPushButton")
         self.dispPushButton = QtWidgets.QPushButton(self.centralwidget)
         self.dispPushButton.setGeometry(QtCore.QRect(590, 320, 80, 32))
         self.dispPushButton.setObjectName("dispPushButton")
+        self.displayTextEdit = QtWidgets.QTextEdit(self)
+        self.displayTextEdit.setGeometry(QtCore.QRect(560, 371, 210, 188))
+        self.displayTextEdit.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+        self.displayTextEdit.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.displayTextEdit.setReadOnly(True)
+        self.displayTextEdit.setObjectName("displayTextEdit")
         self.setCentralWidget(self.centralwidget)
         self.statusbar = QtWidgets.QStatusBar(self)
         self.statusbar.setObjectName("statusbar")
@@ -90,6 +99,7 @@ class Ui_MainWindow( QMainWindow ):
         self.iterationsNumberLineEdit.setText(_translate("MainWindow", ""))
         self.iterationsNumberLineEdit.setPlaceholderText("Iterations MC")
         self.runPushButton.setText(_translate("MainWindow", "RUN"))
+        self.createPushButton.setText(_translate("MainWindow", "Create sim."))
         self.dispPushButton.setText(_translate("MainWindow", "Disp Img"))
         
         self.dimensionalityComboBox.addItems(["2D", "3D"])
@@ -98,13 +108,12 @@ class Ui_MainWindow( QMainWindow ):
         self.simulationComboBox.addItems(["none", "monte_carlo"])
 
         self.runPushButton.clicked.connect( self.runPushButtonClicked )
+        self.createPushButton.clicked.connect( self.createPushButtonClicked )
         self.dispPushButton.clicked.connect( self.loadFunction )
     
     
-    def runPushButtonClicked(self):
+    def createPushButtonClicked(self):
         file_name = self.save_data_to_xml_file()
-        subprocess.call(["./main", file_name])
-        #subprocess.call("./main")
         
         
     def save_data_to_xml_file(self) -> str:
@@ -120,7 +129,7 @@ class Ui_MainWindow( QMainWindow ):
         now = datetime.datetime.now()
         file_name = str( now )[:10] +'-'+ str( now )[11:-7] +':'+ str( now )[-6:-4] +'_'+ neighborhood_type +'_' \
                     + boundary_conditions +'_'+ simulation_type +'_'+ dimensionality_type +'_'+ dim_size
-        file_name = "data" ### tmp ###
+        #file_name = "data" ### tmp ###
         xml_file = dir_path + file_name + ".xml"
         
         GG_config = ET.Element("GG_config")
@@ -141,6 +150,45 @@ class Ui_MainWindow( QMainWindow ):
         return xml_file
     
     
+    def runPushButtonClicked(self):
+        files_list = self.getFilesList()
+        self.runSimulations(files_list)
+        self.setTextOnDisplayEdit(files_list)
+        self.removeFiles(files_list)
+    
+    
+    def getFilesList(self):
+        dir_path = "data/"
+        files_list = [ dir_path + file for file in os.listdir(dir_path) if file.endswith(".xml") ]
+        return files_list
+    
+    
+    def runSimulations(self, files_list):
+        for file_path in files_list:
+            subprocess.call(["./main", file_path])
+    
+    
+    def setTextOnDisplayEdit(self, files_list):
+        text = ""
+        
+        for file_path in files_list:
+            
+            text += file_path[5:-4].replace("_", " ") + "\n"
+            
+            with open(file_path[:-4] + ".txt") as time_file:
+                for line in time_file:
+                    text += " " + line
+            text += "\n\n"
+        
+        self.displayTextEdit.clear()
+        self.displayTextEdit.setPlainText(text)
+    
+    
+    def removeFiles(self, files_list):
+        for file_path in files_list:
+            os.remove(file_path)
+    
+    
     def loadFunction(self):
         try:
             filePath, _ = QtWidgets.QFileDialog.getOpenFileName()
@@ -158,7 +206,7 @@ class Ui_MainWindow( QMainWindow ):
     def loadFile(self):
         try:
             filePath, _ = QtWidgets.QFileDialog.getOpenFileName()
-            if not filePath:
+            if not filePath or filePath[-4:] != '.csv':
                 return
             df = pd.read_csv(filePath, sep=',')
             df = df[['x', 'y', 'z', 'grainId']]

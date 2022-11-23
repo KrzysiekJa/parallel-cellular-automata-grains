@@ -303,7 +303,7 @@ namespace simula{
     void GrainsGrowth::performCell_IdChange( INT_TYPE cell_x, INT_TYPE cell_y, INT_TYPE cell_z )
     {
         std::map< INT_TYPE, unsigned > neighborhoodMap = countNeighborhood(cell_x, cell_y, cell_z);
-        INT_TYPE newId = getNeighborhood_MaxFranction(neighborhoodMap);
+        INT_TYPE newId = getNeighborhood_MaxFraction(neighborhoodMap);
         nextSpace[cell_x][cell_y][cell_z] = newId;
     }
 
@@ -350,7 +350,7 @@ namespace simula{
         return valMap;
     }
 
-    INT_TYPE GrainsGrowth::getNeighborhood_MaxFranction( std::map< INT_TYPE, unsigned > neighborhoodMap )
+    INT_TYPE GrainsGrowth::getNeighborhood_MaxFraction( std::map< INT_TYPE, unsigned > neighborhoodMap )
     {
         std::map< INT_TYPE, unsigned >::iterator  dominant = std::max_element(
             std::begin(neighborhoodMap), std::end(neighborhoodMap),
@@ -431,7 +431,7 @@ namespace simula{
         std::map< INT_TYPE, unsigned > inMap, unsigned initEnergy, INT_TYPE cell_x, INT_TYPE cell_y, INT_TYPE cell_z 
         )
     {
-        INT_TYPE maxFranctionId = getNeighborhood_MaxFranction(inMap);
+        INT_TYPE maxFranctionId = getNeighborhood_MaxFraction(inMap);
         unsigned maxFranctionEnergy = calculateCellEnergy( inMap , maxFranctionId );
         if (initEnergy > maxFranctionEnergy)
         {
