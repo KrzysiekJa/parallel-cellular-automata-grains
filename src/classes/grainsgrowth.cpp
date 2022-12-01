@@ -159,7 +159,6 @@ namespace simula{
                 {
                     spaceObject[x][y][z] = 0;
                 }
-                // didn't worked: memset( spaceObject[x][y], 0, thirdDim * sizeof(INT_TYPE) );
             }
         }
         return spaceObject;
@@ -169,34 +168,18 @@ namespace simula{
      *      Simulation preparation
      ***********************************************/
 
-    //INT_TYPE *** GrainsGrowth::makeSimulation( unsigned numberOfNucleus, unsigned numberOfMCExecutions )
-    //{        
-    //    createBasicStructure(numberOfNucleus); // Cellular automata
-    //    //std::cout << spaceToDisplay() << "\n";
-    //
-    //    if (simulationType == "monte_carlo")
-    //    {
-    //        numberOfMCExecutions = numberOfMCExecutions > 0 ? numberOfMCExecutions : numberOfNucleus;
-    //        makeMonteCarloSimulation(numberOfMCExecutions);
-    //    }
-    //    return nextSpace;
-    //}
-
-    INT_TYPE *** GrainsGrowth::copySpace( INT_TYPE *** modelSpace )
+    void GrainsGrowth::copySpace()
     {
-        INT_TYPE *** targetSpace = new INT_TYPE ** [dimSize];
-
         for (SIZE_TYPE x = 0; x < dimSize; ++x)
         {
-            targetSpace[x] = new INT_TYPE * [dimSize];
-
             for (SIZE_TYPE y = 0; y < dimSize; ++y)
             {
-                targetSpace[x][y] = new INT_TYPE [dimSize];
-                std::copy( &modelSpace[x][y][0],  &modelSpace[x][y][thirdDim],  targetSpace[x][y] );
+                for (SIZE_TYPE z = 0; z < thirdDim; ++z)
+                {
+                    space[x][y][z] = nextSpace[x][y][z];
+                }
             }
         }
-        return targetSpace;
     }
 
     void GrainsGrowth::createBasicStructure( unsigned numberOfNucleus)
@@ -208,7 +191,7 @@ namespace simula{
         while (change_happened_iter)
         {
             change_happened_iter = iterateOverSpace();
-            space = copySpace(nextSpace);
+            copySpace();
         }
     }
 
@@ -389,7 +372,7 @@ namespace simula{
                 iterateOverMCVector();
                 numberOfIter--;
             }
-            space = copySpace(nextSpace);
+            copySpace();
         }
     }
 
