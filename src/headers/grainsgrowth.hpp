@@ -30,7 +30,7 @@ namespace simula{
         void setMonteCarloVector();
         INT_TYPE *** initSpace( INT_TYPE *** );
 
-        INT_TYPE *** copySpace( INT_TYPE *** );
+        void copySpace();
         void putNucleusInSpace( unsigned );
         bool iterateOverSpace();
         bool checkIfCell_IdEqual_0( INT_TYPE, INT_TYPE, INT_TYPE );
