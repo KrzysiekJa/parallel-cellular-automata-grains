@@ -387,10 +387,9 @@ namespace simula{
             {
                 shuffleMonteCarloVector();
                 iterateOverMCVector();
-                space = copySpace(nextSpace);
-
                 numberOfIter--;
             }
+            space = copySpace(nextSpace);
         }
     }
 
@@ -419,7 +418,7 @@ namespace simula{
     void GrainsGrowth::inspectCellEnergy( INT_TYPE cell_x, INT_TYPE cell_y, INT_TYPE cell_z )
     {
         std::map< INT_TYPE, unsigned > neighborhoodMap = countNeighborhood(cell_x, cell_y, cell_z);
-        unsigned initEnergy = calculateCellEnergy( neighborhoodMap , space[cell_x][cell_y][cell_z] );
+        unsigned initEnergy = calculateCellEnergy( neighborhoodMap , nextSpace[cell_x][cell_y][cell_z] );
         
         if (initEnergy > 0)
         {
