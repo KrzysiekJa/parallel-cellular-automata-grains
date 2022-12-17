@@ -28,7 +28,7 @@ namespace simula{
         void setThirdDim();
         void setNeighborhoodVector();
         void setMonteCarloVector();
-        INT_TYPE *** initSpace( INT_TYPE *** );
+        INT_TYPE *** initSpace();
 
         void copySpace();
         void putNucleusInSpace( unsigned );

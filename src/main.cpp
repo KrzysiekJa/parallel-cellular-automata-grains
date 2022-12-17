@@ -11,7 +11,8 @@ int main( int argc, char * argv[] )
      *      Reading from xml config file
      ***********************************************/
     
-    std::string inFileName( argv[1] );
+    // std::string inFileName( argv[1] );
+    std::string inFileName = "data/2022-12-15-00:46:57:63_moore_periodic_monte_carlo_3D_10.xml";
     std::ifstream inputFile( inFileName );
     std::map< std::string, std::string > configDataMap = utils::readDataFromXML( inputFile );
     
@@ -36,7 +37,7 @@ int main( int argc, char * argv[] )
 
     t_finish = std::chrono::high_resolution_clock::now();
     std::chrono::duration< double> simula_CA_time = t_finish - t_start;
-    // -- ************** -- //
+    //    ---   **************   ---    //
     t_start = std::chrono::high_resolution_clock::now();
 
     grainsGrowth.makeMonteCarloSimulation( std::stoul( configDataMap["iterationsMC"] ) );
@@ -78,4 +79,6 @@ int main( int argc, char * argv[] )
         {"savingTime", saving_time.count()} 
         };
     utils::saveTimeMeasurements( configDataMap["measurementsFile"], timeMeasurementsMap );
+
+    return 0;
 }

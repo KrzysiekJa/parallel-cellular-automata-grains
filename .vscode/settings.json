@@ -87,7 +87,8 @@
         "iomanip": "cpp",
         "stack": "cpp",
         "typeindex": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "source_location": "cpp"
     },
     "C_Cpp.default.cppStandard": "c++17"
 }

@@ -3,7 +3,7 @@
 #include <algorithm>
 #include "../headers/grainsgrowth.hpp"
 
-
+#include <chrono>
 namespace simula{
 
     /************************************************
@@ -20,8 +20,8 @@ namespace simula{
         setThirdDim();
         setNeighborhoodVector();
         setMonteCarloVector();
-        space = initSpace(space);
-        nextSpace = initSpace(nextSpace);
+        space = initSpace();
+        nextSpace = initSpace();
     }
 
     GrainsGrowth::~GrainsGrowth()
@@ -145,9 +145,9 @@ namespace simula{
         }
     }
 
-    INT_TYPE *** GrainsGrowth::initSpace( INT_TYPE *** spaceObject )
+    INT_TYPE *** GrainsGrowth::initSpace()
     {
-        spaceObject = new INT_TYPE ** [dimSize];
+        INT_TYPE *** spaceObject = new INT_TYPE ** [dimSize];
         
         for (SIZE_TYPE x = 0; x < dimSize; ++x)
         {
@@ -472,8 +472,8 @@ namespace simula{
     {
         dimSize = newDimSize;
         setThirdDim();
-        space = initSpace(space);
-        nextSpace = initSpace(nextSpace);
+        space = initSpace();
+        nextSpace = initSpace();
         setMonteCarloVector();
     }
 
