@@ -3,7 +3,7 @@
 #include <algorithm>
 #include "../headers/grainsgrowth.hpp"
 
-#include <chrono>
+
 namespace simula{
 
     /************************************************
@@ -145,20 +145,20 @@ namespace simula{
         }
     }
 
-    INT_TYPE *** GrainsGrowth::initSpace()
+    CELL *** GrainsGrowth::initSpace()
     {
-        INT_TYPE *** spaceObject = new INT_TYPE ** [dimSize];
+        CELL *** spaceObject = new CELL ** [dimSize];
         
         for (SIZE_TYPE x = 0; x < dimSize; ++x)
         {
-            spaceObject[x] = new INT_TYPE * [dimSize];
+            spaceObject[x] = new CELL * [dimSize];
             for (SIZE_TYPE y = 0; y < dimSize; ++y)
             {
-                spaceObject[x][y] = new INT_TYPE [thirdDim];
-                for (SIZE_TYPE z = 0; z < thirdDim; ++z)
-                {
-                    spaceObject[x][y][z] = 0;
-                }
+                spaceObject[x][y] = new CELL [thirdDim];
+                // for (SIZE_TYPE z = 0; z < thirdDim; ++z)
+                // {
+                //     spaceObject[x][y][z] = 0;
+                // }
             }
         }
         return spaceObject;
@@ -176,7 +176,7 @@ namespace simula{
             {
                 for (SIZE_TYPE z = 0; z < thirdDim; ++z)
                 {
-                    space[x][y][z] = nextSpace[x][y][z];
+                    space[x][y][z].id = nextSpace[x][y][z].id;
                 }
             }
         }
@@ -207,9 +207,9 @@ namespace simula{
                 x = rand() % dimSize;
                 y = rand() % dimSize;
                 z = rand() % thirdDim;
-            } while (space[x][y][z] != 0);
+            } while (space[x][y][z].id != 0);
 
-            space[x][y][z] = i;
+            space[x][y][z].id = i;
         }
     }
 
@@ -236,7 +236,7 @@ namespace simula{
 
     bool GrainsGrowth::checkIfCell_IdEqual_0( INT_TYPE cell_x, INT_TYPE cell_y , INT_TYPE cell_z)
     {
-        if (space[cell_x][cell_y][cell_z] == 0)
+        if (space[cell_x][cell_y][cell_z].id == 0)
         {
             checkCell_NeighborhoodIds(cell_x, cell_y, cell_z);
             return true;
@@ -273,7 +273,7 @@ namespace simula{
             neigh_cell_y >= 0 && neigh_cell_y < dimSize && 
             neigh_cell_z >= 0 && neigh_cell_z < thirdDim )
         {
-            if ( space[neigh_cell_x][neigh_cell_y][neigh_cell_z] != 0 )
+            if ( space[neigh_cell_x][neigh_cell_y][neigh_cell_z].id != 0 )
             {
                 // found cell in neighborhood with id =/= 0
                 performCell_IdChange(cell_x, cell_y, cell_z);
@@ -287,7 +287,7 @@ namespace simula{
     {
         std::map< INT_TYPE, unsigned > neighborhoodMap = countNeighborhood(cell_x, cell_y, cell_z);
         INT_TYPE newId = getNeighborhood_MaxFraction(neighborhoodMap);
-        nextSpace[cell_x][cell_y][cell_z] = newId;
+        nextSpace[cell_x][cell_y][cell_z].id = newId;
     }
 
     std::map< INT_TYPE, unsigned > GrainsGrowth::countNeighborhood(
@@ -315,7 +315,7 @@ namespace simula{
             neigh_cell_y >= 0 && neigh_cell_y < dimSize && 
             neigh_cell_z >= 0 && neigh_cell_z < thirdDim )
         {
-            INT_TYPE value = space[neigh_cell_x][neigh_cell_y][neigh_cell_z];
+            INT_TYPE value = space[neigh_cell_x][neigh_cell_y][neigh_cell_z].id;
             if (value != 0)
             {
                 valMap[ value ]++;
@@ -324,9 +324,9 @@ namespace simula{
         else 
         {   // specially for periodic boundary conditions case
             if (boundaryConditionsType == "periodic" && 
-                space[ mapIfPeriodic(neigh_cell_x) ][ mapIfPeriodic(neigh_cell_y) ][ mapIfPeriodic(neigh_cell_z) ] != 0 )
+                space[ mapIfPeriodic(neigh_cell_x) ][ mapIfPeriodic(neigh_cell_y) ][ mapIfPeriodic(neigh_cell_z) ].id != 0 )
             {
-                INT_TYPE value = space[ mapIfPeriodic(neigh_cell_x) ][ mapIfPeriodic(neigh_cell_y) ][ mapIfPeriodic(neigh_cell_z) ];
+                INT_TYPE value = space[ mapIfPeriodic(neigh_cell_x) ][ mapIfPeriodic(neigh_cell_y) ][ mapIfPeriodic(neigh_cell_z) ].id;
                 valMap[ value ]++;
             }
         }
@@ -394,14 +394,14 @@ namespace simula{
 
             inspectCellEnergy(x, y, z);
 
-            iter = iterVector.erase(iter); // instrad of iter++
+            iter = iterVector.erase(iter); // instead of iter++
         }
     }
 
     void GrainsGrowth::inspectCellEnergy( INT_TYPE cell_x, INT_TYPE cell_y, INT_TYPE cell_z )
     {
         std::map< INT_TYPE, unsigned > neighborhoodMap = countNeighborhood(cell_x, cell_y, cell_z);
-        unsigned initEnergy = calculateCellEnergy( neighborhoodMap , nextSpace[cell_x][cell_y][cell_z] );
+        unsigned initEnergy = calculateCellEnergy( neighborhoodMap , nextSpace[cell_x][cell_y][cell_z].id );
         
         if (initEnergy > 0)
         {
@@ -417,7 +417,7 @@ namespace simula{
         unsigned maxFranctionEnergy = calculateCellEnergy( inMap , maxFranctionId );
         if (initEnergy > maxFranctionEnergy)
         {
-            nextSpace[cell_x][cell_y][cell_z] = maxFranctionId;
+            nextSpace[cell_x][cell_y][cell_z].id = maxFranctionId;
         }
     }
 
@@ -429,8 +429,8 @@ namespace simula{
             inMAp.begin(), inMAp.end(), 0, 
             [] ( unsigned acc, std::pair< INT_TYPE, unsigned > p ) 
             {
-                return ( acc + p.second ); 
-            } 
+                return ( acc + p.second );
+            }
         );
         return sum;
     }
@@ -449,7 +449,7 @@ namespace simula{
             {
                 for (int z = 0; z < thirdDim; ++z)
                 {
-                    outputStr += std::to_string( nextSpace[x][y][z] );
+                    outputStr += std::to_string( nextSpace[x][y][z].id );
                     outputStr += " ";
                 }
                 outputStr += "\n";
@@ -477,33 +477,30 @@ namespace simula{
         setMonteCarloVector();
     }
 
-    INT_TYPE *** GrainsGrowth::getSpace()
+    CELL *** GrainsGrowth::getSpace()
     {
+        getEnergySpace();
         return nextSpace;
     }
 
-    SIZE_TYPE *** GrainsGrowth::createEnergySpace() // private method
+   void GrainsGrowth::createEnergySpace() // private method
     {
-        SIZE_TYPE *** spaceObject = new SIZE_TYPE ** [dimSize];
-        
         for (SIZE_TYPE x = 0; x < dimSize; ++x)
         {
-            spaceObject[x] = new INT_TYPE * [dimSize];
             for (SIZE_TYPE y = 0; y < dimSize; ++y)
             {
-                spaceObject[x][y] = new INT_TYPE [thirdDim];
                 for (SIZE_TYPE z = 0; z < thirdDim; ++z)
                 {
-                    spaceObject[x][y][z] = 0;
+                    space[x][y][z].energy = 0;
+                    nextSpace[x][y][z].energy = 0;
                 }
             }
         }
-        return spaceObject;
     }
 
-    SIZE_TYPE *** GrainsGrowth::getEnergySpace()
+    void GrainsGrowth::getEnergySpace()
     {
-        SIZE_TYPE *** energySpace = createEnergySpace();
+       createEnergySpace();
 
         for (SIZE_TYPE x = 0; x < dimSize; ++x)
         {
@@ -512,11 +509,11 @@ namespace simula{
                 for (SIZE_TYPE z = 0; z < thirdDim; ++z)
                 {
                     std::map< INT_TYPE, unsigned > neighborhoodMap = countNeighborhood(x, y, z);
-                    energySpace[x][y][z] = calculateCellEnergy( neighborhoodMap , space[x][y][z] );
+                    space[x][y][z].energy = calculateCellEnergy( neighborhoodMap , space[x][y][z].id );
+                    nextSpace[x][y][z].energy = space[x][y][z].energy;
                 }
             }
         }
-        return energySpace;
     }
 
     void GrainsGrowth::setNeighborhoodType( std::string inCA_NeighborhoodType )

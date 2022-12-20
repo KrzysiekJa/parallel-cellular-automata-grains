@@ -1,10 +1,7 @@
-#include <map>
-#include <fstream>
-#include <string>
 #include <boost/foreach.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
-#include "../headers/variables.hpp"
+#include "utils_functions.hpp"
 
 
 namespace utils{
@@ -51,8 +48,7 @@ namespace utils{
     // ugly function
     void saveSpaceToCSV( 
         std::string outputFileName, 
-        INT_TYPE *** matrix3D,
-        SIZE_TYPE *** energySpace,
+        simula::CELL *** spaceMatrix,
         std::map< std::string, SIZE_TYPE > dimMap,
         SIZE_TYPE numberOfNucleus
         )
@@ -72,11 +68,11 @@ namespace utils{
                 {
                     outputString += std::to_string(id_count) + ",";
                     outputString += std::to_string(x) + "," + std::to_string(y) + "," + std::to_string(z) + ",";
-                    outputString += std::to_string(matrix3D[x][y][z]) + ","; // grain id
-                    toRGBColor( matrix3D[x][y][z], numberOfNucleus, r, g, b );
+                    outputString += std::to_string( spaceMatrix[x][y][z].id ) + ","; // grain id
+                    toRGBColor( spaceMatrix[x][y][z].id, numberOfNucleus, r, g, b );
                     outputString += std::to_string( int(r*255) ) + " " + std::to_string( int(g*255) ) + " ";
                     outputString += std::to_string( int(b*255) ) + ",";
-                    outputString += std::to_string(energySpace[x][y][z]);
+                    outputString += std::to_string( spaceMatrix[x][y][z].energy );
                     outputString += "\n";
                     ++id_count;
                 }

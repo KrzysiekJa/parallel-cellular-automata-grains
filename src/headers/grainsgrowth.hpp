@@ -1,7 +1,11 @@
+#ifndef GRAINSGROWTH_H
+#define GRAINSGROWTH_H
+
 #include <map>
 #include <tuple>
 #include <vector>
 #include <string>
+#include "cell.hpp"
 #include "variables.hpp"
 
 
@@ -12,8 +16,8 @@ namespace simula{
     private:
         SIZE_TYPE dimSize;
         SIZE_TYPE thirdDim;
-        INT_TYPE *** space;
-        INT_TYPE *** nextSpace;
+        CELL *** space;
+        CELL *** nextSpace;
         std::string CA_NeighborhoodType = "von_neumann"; // alternative: "moore"
         std::string boundaryConditionsType = "absorbing"; // alternative: "periodic"
         std::string dimensionalityType = "2D"; // alternative: "3D"
@@ -28,7 +32,7 @@ namespace simula{
         void setThirdDim();
         void setNeighborhoodVector();
         void setMonteCarloVector();
-        INT_TYPE *** initSpace();
+        CELL *** initSpace();
 
         void copySpace();
         void putNucleusInSpace( unsigned );
@@ -48,7 +52,8 @@ namespace simula{
         void checkCellEnergeticStatus( std::map< INT_TYPE, unsigned >, unsigned , INT_TYPE, INT_TYPE, INT_TYPE );
         unsigned calculateCellEnergy( std::map< INT_TYPE, unsigned >, INT_TYPE );
 
-        SIZE_TYPE *** createEnergySpace();
+        void createEnergySpace();
+        void getEnergySpace();
     public:
         GrainsGrowth( std::map< std::string, std::string > );
         ~GrainsGrowth();
@@ -60,8 +65,7 @@ namespace simula{
         std::string spaceToDisplay();
         SIZE_TYPE getSize();
         void setSize( SIZE_TYPE );
-        INT_TYPE *** getSpace();
-        SIZE_TYPE *** getEnergySpace();
+        CELL *** getSpace();
         void setNeighborhoodType( std::string );
         void setBoundaryConditionsType( std::string );
         void setDimensionalityType( std::string );
@@ -69,3 +73,4 @@ namespace simula{
     };
 
 }
+#endif  /* GRAINSGROWTH_H */

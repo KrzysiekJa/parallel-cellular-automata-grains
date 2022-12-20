@@ -1,8 +1,9 @@
 #include <map>
 #include <fstream>
 #include <chrono>
-#include "classes/grainsgrowth.cpp"
-#include "utils/utils_functions.cpp"
+#include "headers/cell.hpp"
+#include "headers/grainsgrowth.hpp"
+#include "utils/utils_functions.hpp"
 
 
 int main( int argc, char * argv[] )
@@ -51,8 +52,7 @@ int main( int argc, char * argv[] )
      *      Saving sturcture to csv file
      ***********************************************/
 
-    INT_TYPE *** matrix = grainsGrowth.getSpace();
-    SIZE_TYPE *** energySpace = grainsGrowth.getEnergySpace();
+    simula::CELL *** space_matrix = grainsGrowth.getSpace();
     SIZE_TYPE size = std::stoul( configDataMap["dimSize"] );
     std::map< std::string, SIZE_TYPE > dimMap { {"first", size}, {"second", size} };
     configDataMap["dimensionalityType"] == "3D" ? 
@@ -61,9 +61,9 @@ int main( int argc, char * argv[] )
     t_start = std::chrono::high_resolution_clock::now();
 
     utils::saveSpaceToCSV( 
-        configDataMap["outputFile"], matrix, energySpace, dimMap , 
+        configDataMap["outputFile"], space_matrix, dimMap , 
         std::stoi( configDataMap["numberOfNucleus"] ) 
-        );
+    );
     
     t_finish = std::chrono::high_resolution_clock::now();
     std::chrono::duration< double> saving_time = t_finish - t_start;
@@ -77,7 +77,7 @@ int main( int argc, char * argv[] )
         {"simulCATime", simula_CA_time.count()}, 
         {"simulMCTime", simula_MC_time.count()}, 
         {"savingTime", saving_time.count()} 
-        };
+    };
     utils::saveTimeMeasurements( configDataMap["measurementsFile"], timeMeasurementsMap );
 
     return 0;
