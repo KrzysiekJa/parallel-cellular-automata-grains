@@ -88,7 +88,8 @@
         "stack": "cpp",
         "typeindex": "cpp",
         "variant": "cpp",
-        "source_location": "cpp"
+        "source_location": "cpp",
+        "filesystem": "cpp"
     },
     "C_Cpp.default.cppStandard": "c++17",
     "C_Cpp.default.configurationProvider": "ms-vscode.makefile-tools"

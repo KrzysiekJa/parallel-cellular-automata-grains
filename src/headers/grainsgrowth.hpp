@@ -33,26 +33,33 @@ namespace simula{
         void setNeighborhoodVector();
         void setMonteCarloVector();
         CELL *** initSpace();
+        std::vector< CELL * > createNeighborhoodVector_space( SIZE_TYPE, SIZE_TYPE, SIZE_TYPE );
+        std::vector< CELL * > createNeighborhoodVector_nextSpace( SIZE_TYPE, SIZE_TYPE, SIZE_TYPE );
+        void setNeighborhoodForCells();
 
         void copySpace();
         void putNucleusInSpace( unsigned );
         bool iterateOverSpace();
         bool checkIfCell_IdEqual_0( INT_TYPE, INT_TYPE, INT_TYPE );
-        void checkCell_NeighborhoodIds( INT_TYPE, INT_TYPE, INT_TYPE );
-        bool inspectNeighborhoodCell( INT_TYPE, INT_TYPE, INT_TYPE, std::tuple< short, short, short > );
-        void performCell_IdChange( INT_TYPE, INT_TYPE, INT_TYPE );
-        std::map< INT_TYPE, unsigned > countNeighborhood( INT_TYPE, INT_TYPE, INT_TYPE );
-        std::map< INT_TYPE, unsigned > checkCellDuringCounting( long, long, long, std::map< INT_TYPE, unsigned > );
-        INT_TYPE mapIfPeriodic( long );
+        //void checkCell_NeighborhoodIds( INT_TYPE, INT_TYPE, INT_TYPE );
+        INT_TYPE checkCell_NeighborhoodIds( CELL );
+        //bool inspectNeighborhoodCell( INT_TYPE, INT_TYPE, INT_TYPE, std::tuple< short, short, short > );
+        //void performCell_IdChange( INT_TYPE, INT_TYPE, INT_TYPE );
+        INT_TYPE performCell_IdChange( CELL );
+        //std::map< INT_TYPE, unsigned > countNeighborhood( INT_TYPE, INT_TYPE, INT_TYPE );
+        std::map< INT_TYPE, unsigned > countNeighborhood( std::vector< CELL * > );
+        //std::map< INT_TYPE, unsigned > checkCellDuringCounting( long, long, long, std::map< INT_TYPE, unsigned > );
+        //INT_TYPE mapIfPeriodic( long );
         INT_TYPE getNeighborhood_MaxFraction( std::map< INT_TYPE, unsigned > );
 
         void shuffleMonteCarloVector();
         void iterateOverMCVector();
-        void inspectCellEnergy( INT_TYPE, INT_TYPE, INT_TYPE );
-        void checkCellEnergeticStatus( std::map< INT_TYPE, unsigned >, unsigned , INT_TYPE, INT_TYPE, INT_TYPE );
+        //void inspectCellEnergy( INT_TYPE, INT_TYPE, INT_TYPE );
+        void inspectCellEnergy( CELL );
+        //void checkCellEnergeticStatus( std::map< INT_TYPE, unsigned >, unsigned , INT_TYPE, INT_TYPE, INT_TYPE );
+        void checkCellEnergeticStatus( std::map< INT_TYPE, unsigned >, unsigned , CELL );
         unsigned calculateCellEnergy( std::map< INT_TYPE, unsigned >, INT_TYPE );
 
-        void createEnergySpace();
         void getEnergySpace();
     public:
         GrainsGrowth( std::map< std::string, std::string > );

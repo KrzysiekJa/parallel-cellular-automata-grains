@@ -16,8 +16,9 @@ namespace simula{
         std::vector< CELL * > neighborhood;
 
         CELL();
-        CELL( INT_TYPE id );
+        CELL( INT_TYPE, unsigned );
         ~CELL();
+        void populateNeighborhoodVec( std::vector< CELL * > );
     };
 }
 #endif /* CELL_H */
