@@ -329,7 +329,6 @@ namespace simula{
     {
         if (space[cell_x][cell_y][cell_z].id == 0)
         {
-            //checkCell_NeighborhoodIds(cell_x, cell_y, cell_z);
             nextSpace[cell_x][cell_y][cell_z].id = checkCell_NeighborhoodIds( space[cell_x][cell_y][cell_z] );
             return true;
         }
@@ -338,20 +337,6 @@ namespace simula{
             return false;
         }
     }
-
-    // void GrainsGrowth::checkCell_NeighborhoodIds( INT_TYPE cell_x, INT_TYPE cell_y, INT_TYPE cell_z )
-    // {
-    //     bool skip_process = false;
-    //     for (auto iter = neighborhoodVector.begin(); iter != neighborhoodVector.end(); ++iter)
-    //     {
-    //         skip_process = inspectNeighborhoodCell(cell_x, cell_y, cell_z, * iter);
-    //         if ( skip_process )
-    //         {
-    //             break;
-    //             // to reduce repetition of operation if in neighborhoob cell =/= 0
-    //         }
-    //     }
-    // }
 
     INT_TYPE GrainsGrowth::checkCell_NeighborhoodIds( CELL cell )
     {
@@ -370,58 +355,12 @@ namespace simula{
         return 0;
     }
 
-    // bool GrainsGrowth::inspectNeighborhoodCell( 
-    //     INT_TYPE cell_x, INT_TYPE cell_y, INT_TYPE cell_z, std::tuple< short, short, short > iter
-    //     )
-    // {
-    //     long neigh_cell_x = cell_x + std::get<0>(iter);
-    //     long neigh_cell_y = cell_y + std::get<1>(iter);
-    //     long neigh_cell_z = cell_z + std::get<2>(iter);
-
-    //     if( neigh_cell_x >= 0 && neigh_cell_x < dimSize && 
-    //         neigh_cell_y >= 0 && neigh_cell_y < dimSize && 
-    //         neigh_cell_z >= 0 && neigh_cell_z < thirdDim )
-    //     {
-    //         if ( space[neigh_cell_x][neigh_cell_y][neigh_cell_z].id != 0 )
-    //         {
-    //             // found cell in neighborhood with id =/= 0
-    //             performCell_IdChange(cell_x, cell_y, cell_z);
-    //             return true;
-    //         }
-    //     }
-    //     return false;
-    // }
-
-    // void GrainsGrowth::performCell_IdChange( INT_TYPE cell_x, INT_TYPE cell_y, INT_TYPE cell_z )
-    // {
-    //     std::map< INT_TYPE, unsigned > neighborhoodMap = countNeighborhood(cell_x, cell_y, cell_z);
-    //     INT_TYPE newId = getNeighborhood_MaxFraction(neighborhoodMap);
-    //     nextSpace[cell_x][cell_y][cell_z].id = newId;
-    // }
-
     INT_TYPE GrainsGrowth::performCell_IdChange( CELL cell )
     {
         std::map< INT_TYPE, unsigned > neighborhoodMap = countNeighborhood( cell.neighborhood );
         INT_TYPE newId = getNeighborhood_MaxFraction(neighborhoodMap);
         return newId;
     }
-
-    // std::map< INT_TYPE, unsigned > GrainsGrowth::countNeighborhood(
-    //     INT_TYPE cell_x, INT_TYPE cell_y, INT_TYPE cell_z
-    //     )
-    // {
-    //     std::map<INT_TYPE, unsigned> rMap;
-    
-    //     for (auto iter = neighborhoodVector.begin(); iter != neighborhoodVector.end(); ++iter)
-    //     {
-    //         long neigh_cell_x = cell_x + std::get<0>( * iter);
-    //         long neigh_cell_y = cell_y + std::get<1>( * iter);
-    //         long neigh_cell_z = cell_z + std::get<2>( * iter);
-
-    //         rMap = checkCellDuringCounting(neigh_cell_x, neigh_cell_y, neigh_cell_z, rMap);
-    //     }
-    //     return rMap;
-    // }
 
     std::map< INT_TYPE, unsigned > GrainsGrowth::countNeighborhood( std::vector< CELL * > neighborhood )
     {
@@ -439,32 +378,6 @@ namespace simula{
         return idsMap;
     }
 
-    // std::map< INT_TYPE, unsigned > GrainsGrowth::checkCellDuringCounting(
-    //     long neigh_cell_x, long neigh_cell_y, long neigh_cell_z, std::map< INT_TYPE, unsigned > valMap
-    //     )
-    // {
-    //     if( neigh_cell_x >= 0 && neigh_cell_x < dimSize && 
-    //         neigh_cell_y >= 0 && neigh_cell_y < dimSize && 
-    //         neigh_cell_z >= 0 && neigh_cell_z < thirdDim )
-    //     {
-    //         INT_TYPE value = space[neigh_cell_x][neigh_cell_y][neigh_cell_z].id;
-    //         if (value != 0)
-    //         {
-    //             valMap[ value ]++;
-    //         }
-    //     }
-    //     else 
-    //     {   // specially for periodic boundary conditions case
-    //         if (boundaryConditionsType == "periodic" && 
-    //             space[ mapIfPeriodic(neigh_cell_x) ][ mapIfPeriodic(neigh_cell_y) ][ mapIfPeriodic(neigh_cell_z) ].id != 0 )
-    //         {
-    //             INT_TYPE value = space[ mapIfPeriodic(neigh_cell_x) ][ mapIfPeriodic(neigh_cell_y) ][ mapIfPeriodic(neigh_cell_z) ].id;
-    //             valMap[ value ]++;
-    //         }
-    //     }
-    //     return valMap;
-    // }
-
     INT_TYPE GrainsGrowth::getNeighborhood_MaxFraction( std::map< INT_TYPE, unsigned > neighborhoodMap )
     {
         std::map< INT_TYPE, unsigned >::iterator  dominant = std::max_element(
@@ -476,19 +389,6 @@ namespace simula{
         );
         return dominant -> first;
     }
-
-    // INT_TYPE GrainsGrowth::mapIfPeriodic( long location )
-    // {
-    //     if (location < 0) {
-    //         return dimSize - 1;
-    //     }
-    //     if (location >= dimSize) {
-    //         return 0;
-    //     }
-    //     else {
-    //         return location;
-    //     }
-    // }
 
     /************************************************
      *      Monte Carlo Simulation
@@ -531,17 +431,6 @@ namespace simula{
         }
     }
 
-    // void GrainsGrowth::inspectCellEnergy( INT_TYPE cell_x, INT_TYPE cell_y, INT_TYPE cell_z )
-    // {
-    //     std::map< INT_TYPE, unsigned > neighborhoodMap = countNeighborhood(cell_x, cell_y, cell_z);
-    //     unsigned initEnergy = calculateCellEnergy( neighborhoodMap , nextSpace[cell_x][cell_y][cell_z].id );
-        
-    //     if (initEnergy > 0)
-    //     {
-    //         checkCellEnergeticStatus(neighborhoodMap, initEnergy, cell_x, cell_y, cell_z);
-    //     }
-    // }
-
     void GrainsGrowth::inspectCellEnergy( CELL cell )
     {
         std::map< INT_TYPE, unsigned > neighborhoodMap = countNeighborhood( cell.neighborhood );
@@ -552,18 +441,6 @@ namespace simula{
             checkCellEnergeticStatus( neighborhoodMap, initEnergy, cell );
         }
     }
-
-    // void GrainsGrowth::checkCellEnergeticStatus( 
-    //     std::map< INT_TYPE, unsigned > inMap, unsigned initEnergy, INT_TYPE cell_x, INT_TYPE cell_y, INT_TYPE cell_z 
-    //     )
-    // {
-    //     INT_TYPE maxFranctionId = getNeighborhood_MaxFraction(inMap);
-    //     unsigned maxFranctionEnergy = calculateCellEnergy( inMap , maxFranctionId );
-    //     if (initEnergy > maxFranctionEnergy)
-    //     {
-    //         nextSpace[cell_x][cell_y][cell_z].id = maxFranctionId;
-    //     }
-    // }
 
     void GrainsGrowth::checkCellEnergeticStatus( 
         std::map< INT_TYPE, unsigned > inMap, unsigned initEnergy, CELL cell 

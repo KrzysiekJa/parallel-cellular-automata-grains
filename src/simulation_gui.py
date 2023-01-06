@@ -165,7 +165,7 @@ class Ui_MainWindow( QMainWindow ):
     
     def runSimulations(self, files_list):
         for file_path in files_list:
-            subprocess.call(["./main", file_path])
+            subprocess.call(["./simula", file_path])
     
     
     def setTextOnDisplayEdit(self, files_list):
