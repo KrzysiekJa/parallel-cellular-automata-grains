@@ -3,7 +3,7 @@
 #include <algorithm>
 #include "../headers/grainsgrowth.hpp"
 
-#include <iostream>
+
 namespace simula{
 
     /************************************************
@@ -22,9 +22,8 @@ namespace simula{
         setMonteCarloVector();
         space = initSpace();
         nextSpace = initSpace();
-        std::cout << "in\n";
+        emptyCell = CELL();
         setNeighborhoodForCells();
-        std::cout << "in 8\n";
     }
 
     GrainsGrowth::~GrainsGrowth()
@@ -167,22 +166,55 @@ namespace simula{
         return spaceObject;
     }
 
+    INT_TYPE GrainsGrowth::mapIfPeriodic( long location )
+    {   // intentionally signed
+        if (location < 0) {
+            return dimSize - 1;
+        }
+        if (location >= dimSize) {
+            return 0;
+        }
+        else {
+            return location;
+        }
+    }
+
+    CELL * GrainsGrowth::appendCellPointer( long neigh_x, long neigh_y, long neigh_z,  CELL *** spaceObj )
+    {
+        CELL * outCell;
+
+        if( neigh_x >= 0 && neigh_x < dimSize && 
+            neigh_y >= 0 && neigh_y < dimSize &&
+            neigh_z >= 0 && neigh_z < thirdDim )
+        {
+			outCell = &spaceObj[neigh_x][neigh_y][neigh_z];
+        }
+        else
+        {
+            if (boundaryConditionsType == "periodic")
+            {
+	 			outCell = &spaceObj[ mapIfPeriodic(neigh_x) ][ mapIfPeriodic(neigh_y) ][ mapIfPeriodic(neigh_z) ];
+            }
+            if (boundaryConditionsType == "absorbing")
+            {
+	 			outCell = &emptyCell;
+            }
+        }
+        return outCell;
+    }
+
     std::vector< CELL * > GrainsGrowth::createNeighborhoodVector_space( SIZE_TYPE x, SIZE_TYPE y, SIZE_TYPE z )
     {
         std::vector< CELL * > outputVec;
-        std::cout << "in\n";
 
         for (auto iter = neighborhoodVector.begin(); iter != neighborhoodVector.end(); ++iter)
         {
-            SIZE_TYPE neigh_x = x + std::get<0>( * iter);
-            SIZE_TYPE neigh_y = y + std::get<1>( * iter);
-            SIZE_TYPE neigh_z = z + std::get<2>( * iter);
-            std::cout << "in 0\n";
-            CELL * cell = &space[neigh_x][neigh_y][neigh_z];
-            std::cout << "in 00\n";
+            long neigh_x = x + std::get<0>( * iter);
+            long neigh_y = y + std::get<1>( * iter);
+            long neigh_z = z + std::get<2>( * iter);
 
+            CELL * cell = appendCellPointer(neigh_x, neigh_y, neigh_z, space);
             outputVec.push_back( cell );
-            std::cout << "in 01\n";
         }
         return outputVec;
     }
@@ -197,7 +229,8 @@ namespace simula{
             SIZE_TYPE neigh_y = y + std::get<1>( * iter);
             SIZE_TYPE neigh_z = z + std::get<2>( * iter);
 
-            outputVec.push_back( &nextSpace[neigh_x][neigh_y][neigh_z] );
+            CELL * cell = appendCellPointer(neigh_x, neigh_y, neigh_z, space);
+            outputVec.push_back( cell );
         }
         return outputVec;
     }
@@ -212,6 +245,7 @@ namespace simula{
             {
                 for (SIZE_TYPE z = 0; z < thirdDim; ++z)
                 {
+                    // applied loop fission optimization
                     tmpVec = createNeighborhoodVector_space( x, y, z );
                     space[x][y][z].populateNeighborhoodVec( tmpVec );
                     tmpVec = createNeighborhoodVector_nextSpace( x, y, z );

@@ -24,6 +24,7 @@ namespace simula{
         std::string simulationType = "none"; // alternative: "monte_carlo"
         std::vector< std::tuple< short, short, short >> neighborhoodVector;
         std::vector< std::tuple< SIZE_TYPE, SIZE_TYPE, SIZE_TYPE >> monteCarloVector;
+        CELL emptyCell;
 
         void checkInput_NeighborhoodType( std::string );
         void checkInput_BoundaryConditionsType( std::string );
@@ -33,6 +34,8 @@ namespace simula{
         void setNeighborhoodVector();
         void setMonteCarloVector();
         CELL *** initSpace();
+        INT_TYPE mapIfPeriodic( long ); // intentionally signed
+        CELL * appendCellPointer( long, long, long,  CELL *** );
         std::vector< CELL * > createNeighborhoodVector_space( SIZE_TYPE, SIZE_TYPE, SIZE_TYPE );
         std::vector< CELL * > createNeighborhoodVector_nextSpace( SIZE_TYPE, SIZE_TYPE, SIZE_TYPE );
         void setNeighborhoodForCells();
