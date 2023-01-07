@@ -135,13 +135,15 @@ namespace simula{
 
     void GrainsGrowth::setMonteCarloVector()
     {
+        monteCarloVector.reserve( unsigned(dimSize * dimSize * thirdDim) );
+
         for (SIZE_TYPE x = 0; x < dimSize; ++x)
         {
             for (SIZE_TYPE y = 0; y < dimSize; ++y)
             {
                 for (SIZE_TYPE z = 0; z < thirdDim; ++z)
                 {
-                    monteCarloVector.push_back( { x, y, z} );
+                    monteCarloVector.emplace_back( x, y, z );
                 }
             }
         }
@@ -157,10 +159,10 @@ namespace simula{
             for (SIZE_TYPE y = 0; y < dimSize; ++y)
             {
                 spaceObject[x][y] = new CELL [thirdDim];
-                // for (SIZE_TYPE z = 0; z < thirdDim; ++z)
-                // {
-                //     spaceObject[x][y][z] = 0;
-                // }
+                for (SIZE_TYPE z = 0; z < thirdDim; ++z)
+                {
+                    spaceObject[x][y][z] = CELL( boundaryConditionsType, CA_NeighborhoodType );
+                }
             }
         }
         return spaceObject;
@@ -203,10 +205,8 @@ namespace simula{
         return outCell;
     }
 
-    std::vector< CELL * > GrainsGrowth::createNeighborhoodVector_space( SIZE_TYPE x, SIZE_TYPE y, SIZE_TYPE z )
+    void GrainsGrowth::createNeighborhoodVector_space( SIZE_TYPE x, SIZE_TYPE y, SIZE_TYPE z )
     {
-        std::vector< CELL * > outputVec;
-
         for (auto iter = neighborhoodVector.begin(); iter != neighborhoodVector.end(); ++iter)
         {
             long neigh_x = x + std::get<0>( * iter);
@@ -214,25 +214,21 @@ namespace simula{
             long neigh_z = z + std::get<2>( * iter);
 
             CELL * cell = appendCellPointer(neigh_x, neigh_y, neigh_z, space);
-            outputVec.push_back( cell );
+            space[x][y][z].addNeighbor( cell );
         }
-        return outputVec;
     }
 
-    std::vector< CELL * > GrainsGrowth::createNeighborhoodVector_nextSpace( SIZE_TYPE x, SIZE_TYPE y, SIZE_TYPE z )
+    void GrainsGrowth::createNeighborhoodVector_nextSpace( SIZE_TYPE x, SIZE_TYPE y, SIZE_TYPE z )
     {
-        std::vector< CELL * > outputVec;
-
         for (auto iter = neighborhoodVector.begin(); iter != neighborhoodVector.end(); ++iter)
         {
             SIZE_TYPE neigh_x = x + std::get<0>( * iter);
             SIZE_TYPE neigh_y = y + std::get<1>( * iter);
             SIZE_TYPE neigh_z = z + std::get<2>( * iter);
 
-            CELL * cell = appendCellPointer(neigh_x, neigh_y, neigh_z, space);
-            outputVec.push_back( cell );
+            CELL * cell = appendCellPointer(neigh_x, neigh_y, neigh_z, nextSpace);
+            nextSpace[x][y][z].addNeighbor( cell );
         }
-        return outputVec;
     }
 
     void GrainsGrowth::setNeighborhoodForCells()
@@ -246,10 +242,8 @@ namespace simula{
                 for (SIZE_TYPE z = 0; z < thirdDim; ++z)
                 {
                     // applied loop fission optimization
-                    tmpVec = createNeighborhoodVector_space( x, y, z );
-                    space[x][y][z].populateNeighborhoodVec( tmpVec );
-                    tmpVec = createNeighborhoodVector_nextSpace( x, y, z );
-                    nextSpace[x][y][z].populateNeighborhoodVec( tmpVec );
+                    createNeighborhoodVector_space( x, y, z );
+                    createNeighborhoodVector_nextSpace( x, y, z );
                 }
             }
         }
@@ -526,6 +520,7 @@ namespace simula{
                 for (SIZE_TYPE z = 0; z < thirdDim; ++z)
                 {
                     std::map< INT_TYPE, unsigned > neighborhoodMap = countNeighborhood( nextSpace[x][y][z].neighborhood );
+                    // applied loop fission optimization
                     nextSpace[x][y][z].energy = calculateCellEnergy( neighborhoodMap , nextSpace[x][y][z].id );
                     space[x][y][z].energy = nextSpace[x][y][z].energy;
                 }

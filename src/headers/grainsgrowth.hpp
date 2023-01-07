@@ -36,8 +36,8 @@ namespace simula{
         CELL *** initSpace();
         INT_TYPE mapIfPeriodic( long ); // intentionally signed
         CELL * appendCellPointer( long, long, long,  CELL *** );
-        std::vector< CELL * > createNeighborhoodVector_space( SIZE_TYPE, SIZE_TYPE, SIZE_TYPE );
-        std::vector< CELL * > createNeighborhoodVector_nextSpace( SIZE_TYPE, SIZE_TYPE, SIZE_TYPE );
+        void createNeighborhoodVector_space( SIZE_TYPE, SIZE_TYPE, SIZE_TYPE );
+        void createNeighborhoodVector_nextSpace( SIZE_TYPE, SIZE_TYPE, SIZE_TYPE );
         void setNeighborhoodForCells();
 
         void copySpace();

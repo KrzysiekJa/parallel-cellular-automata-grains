@@ -2,6 +2,7 @@
 #define CELL_H
 
 #include <vector>
+#include <string>
 #include "variables.hpp"
 
 
@@ -16,9 +17,9 @@ namespace simula{
         std::vector< CELL * > neighborhood;
 
         CELL();
-        CELL( INT_TYPE, unsigned );
+        CELL( std::string, std::string );
         ~CELL();
-        void populateNeighborhoodVec( std::vector< CELL * > );
+        void addNeighbor( CELL * );
     };
 }
 #endif /* CELL_H */
