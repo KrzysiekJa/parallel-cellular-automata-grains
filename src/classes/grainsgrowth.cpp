@@ -418,7 +418,6 @@ namespace simula{
             SIZE_TYPE y = std::get<1>( * iter);
             SIZE_TYPE z = std::get<2>( * iter);
 
-            // inspectCellEnergy(x, y, z);
             inspectCellEnergy( nextSpace[x][y][z] );
 
             iter = iterVector.erase(iter); // instead of iter++
@@ -442,6 +441,7 @@ namespace simula{
     {
         INT_TYPE maxFranctionId = getNeighborhood_MaxFraction(inMap);
         unsigned maxFranctionEnergy = calculateCellEnergy( inMap , maxFranctionId );
+        
         if (initEnergy > maxFranctionEnergy)
         {
             cell.id = maxFranctionId;

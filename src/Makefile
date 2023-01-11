@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -std=c++17 -Wall -pedantic
+CFLAGS = -std=c++17 -O3 -Wall -pedantic
 HDS = headers
 CLS = classes
 UTLS = utils
