@@ -1,9 +1,11 @@
+#include "omp.h"
 #include <ctime>
+#include <cmath>
 #include <random>
 #include <algorithm>
 #include "../headers/grainsgrowth.hpp"
 
-
+#include <stdio.h>
 namespace simula{
 
     /************************************************
@@ -241,7 +243,7 @@ namespace simula{
             {
                 for (SIZE_TYPE z = 0; z < thirdDim; ++z)
                 {
-                    // applied loop fission optimization
+                    // applied loop fusion optimization
                     createNeighborhoodVector_space( x, y, z );
                     createNeighborhoodVector_nextSpace( x, y, z );
                 }
@@ -301,8 +303,13 @@ namespace simula{
     bool GrainsGrowth::iterateOverSpace()
     {
         bool zero_hit = false;
+        //unsigned schedule_chunks = floor(dimSize/NUM_THREADS);
+
+        #pragma omp parallel for num_threads(NUM_THREADS) schedule(static)
         for (SIZE_TYPE x = 0; x < dimSize; ++x)
         {
+            // int tid = omp_get_thread_num();
+            // printf("Hello world from omp thread %d\n", tid);
             for (SIZE_TYPE y = 0; y < dimSize; ++y)
             {
                 for (SIZE_TYPE z = 0; z < thirdDim; ++z)
@@ -520,7 +527,7 @@ namespace simula{
                 for (SIZE_TYPE z = 0; z < thirdDim; ++z)
                 {
                     std::map< INT_TYPE, unsigned > neighborhoodMap = countNeighborhood( nextSpace[x][y][z].neighborhood );
-                    // applied loop fission optimization
+                    // applied loop fusion optimization
                     nextSpace[x][y][z].energy = calculateCellEnergy( neighborhoodMap , nextSpace[x][y][z].id );
                     space[x][y][z].energy = nextSpace[x][y][z].energy;
                 }
