@@ -237,6 +237,7 @@ namespace simula{
     {
         std::vector< CELL * > tmpVec;
 
+        #pragma omp parallel for num_threads(NUM_THREADS) schedule(static)
         for (SIZE_TYPE x = 0; x < dimSize; ++x)
         {
             for (SIZE_TYPE y = 0; y < dimSize; ++y)
@@ -303,13 +304,10 @@ namespace simula{
     bool GrainsGrowth::iterateOverSpace()
     {
         bool zero_hit = false;
-        //unsigned schedule_chunks = floor(dimSize/NUM_THREADS);
 
         #pragma omp parallel for num_threads(NUM_THREADS) schedule(static)
         for (SIZE_TYPE x = 0; x < dimSize; ++x)
         {
-            // int tid = omp_get_thread_num();
-            // printf("Hello world from omp thread %d\n", tid);
             for (SIZE_TYPE y = 0; y < dimSize; ++y)
             {
                 for (SIZE_TYPE z = 0; z < thirdDim; ++z)
